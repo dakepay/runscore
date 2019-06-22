@@ -14,8 +14,10 @@ import me.zohar.runscore.useraccount.param.AccountChangeLogQueryCondParam;
 import me.zohar.runscore.useraccount.param.AddUserAccountParam;
 import me.zohar.runscore.useraccount.param.AdjustCashDepositParam;
 import me.zohar.runscore.useraccount.param.BindBankInfoParam;
+import me.zohar.runscore.useraccount.param.LoginLogQueryCondParam;
 import me.zohar.runscore.useraccount.param.UserAccountEditParam;
 import me.zohar.runscore.useraccount.param.UserAccountQueryCondParam;
+import me.zohar.runscore.useraccount.service.LoginLogService;
 import me.zohar.runscore.useraccount.service.UserAccountService;
 import me.zohar.runscore.useraccount.vo.UserAccountInfoVO;
 
@@ -25,13 +27,22 @@ public class UserAccountController {
 
 	@Autowired
 	private UserAccountService userAccountService;
-	
+
+	@Autowired
+	private LoginLogService loginLogService;
+
+	@GetMapping("/findLoginLogByPage")
+	@ResponseBody
+	public Result findLoginLogByPage(LoginLogQueryCondParam param) {
+		return Result.success().setData(loginLogService.findLoginLogByPage(param));
+	}
+
 	@GetMapping("/findAccountChangeLogByPage")
 	@ResponseBody
 	public Result findAccountChangeLogByPage(AccountChangeLogQueryCondParam param) {
 		return Result.success().setData(userAccountService.findAccountChangeLogByPage(param));
 	}
-	
+
 	@GetMapping("/findUserAccountDetailsInfoById")
 	@ResponseBody
 	public Result findUserAccountDetailsInfoById(String userAccountId) {
@@ -70,14 +81,14 @@ public class UserAccountController {
 		userAccountService.modifyMoneyPwd(userAccountId, newMoneyPwd);
 		return Result.success();
 	}
-	
+
 	@PostMapping("/updateUserAccount")
 	@ResponseBody
 	public Result updateUserAccount(UserAccountEditParam param) {
 		userAccountService.updateUserAccount(param);
 		return Result.success();
 	}
-	
+
 	@GetMapping("/getUserAccountInfo")
 	@ResponseBody
 	public Result getUserAccountInfo() {
@@ -89,27 +100,26 @@ public class UserAccountController {
 		UserAccountInfoVO userAccountInfo = userAccountService.getUserAccountInfo(user.getUserAccountId());
 		return Result.success().setData(userAccountInfo);
 	}
-	
+
 	@GetMapping("/delUserAccount")
 	@ResponseBody
 	public Result delUserAccount(String userAccountId) {
 		userAccountService.delUserAccount(userAccountId);
 		return Result.success();
 	}
-	
+
 	@PostMapping("/addUserAccount")
 	@ResponseBody
 	public Result addUserAccount(AddUserAccountParam param) {
 		userAccountService.addUserAccount(param);
 		return Result.success();
 	}
-	
+
 	@PostMapping("/adjustCashDeposit")
 	@ResponseBody
 	public Result adjustCashDeposit(AdjustCashDepositParam param) {
 		userAccountService.adjustCashDeposit(param);
 		return Result.success();
 	}
-	
 
 }

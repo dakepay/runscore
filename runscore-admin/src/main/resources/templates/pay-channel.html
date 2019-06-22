@@ -16,7 +16,6 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.14.2/locale/bootstrap-table-zh-CN.min.js"></script>
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
-
 .add-or-update-pay-channel-dialog {
 	max-width: 100%;
 	width: 48%;
@@ -52,7 +51,7 @@
 	<div id="pay-channel" v-cloak>
 		<div v-show="showPayChannelFlag">
 			<ul class="nav game-category-nav">
-				<li class="nav-item" v-for="payTypeDict in payTypeDicts" v-bind:class="{'selected-game-category-nav-item': payTypeDict.id == tabWithPayTypeId}" v-on:click="tabWithPayTypeId = payTypeDict.id"><a class="nav-link">{{payTypeDict.name}}</a></li>
+				<li class="nav-item" v-for="payTypeDict in payTypeDicts" v-bind:class="{'selected-game-category-nav-item': payTypeDict == tabWithPayType}" v-on:click="tabWithPayType = payTypeDict"><a class="nav-link">{{payTypeDict.name}}</a></li>
 			</ul>
 			<form class="form-inline common-query-cond-form float-right">
 				<button type="button" class="btn btn-secondary btn-sm" style="margin-right: 4px;" v-on:click="toPayTypePage">支付类型维护</button>
@@ -63,23 +62,29 @@
 					<tr>
 						<th>通道code</th>
 						<th>通道名称</th>
-						<th>收款银行</th>
-						<th>收款人</th>
-						<th>卡号</th>
 						<th>排序号</th>
 						<th>是否启用</th>
+						<th v-show="tabWithPayType.bankCardFlag">收款银行</th>
+						<th v-show="tabWithPayType.bankCardFlag">收款人</th>
+						<th v-show="tabWithPayType.bankCardFlag">卡号</th>
+						<th v-show="!tabWithPayType.bankCardFlag">支付平台code</th>
+						<th v-show="!tabWithPayType.bankCardFlag">支付平台名称</th>
+						<th v-show="!tabWithPayType.bankCardFlag">对应通道code</th>
 						<th>操作</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr v-for="payChannel in payChannels" v-show="tabWithPayTypeId == payChannel.payTypeId">
+					<tr v-for="payChannel in payChannels" v-show="tabWithPayType.id == payChannel.payTypeId">
 						<td>{{payChannel.channelCode}}</td>
 						<td>{{payChannel.channelName}}</td>
-						<td>{{payChannel.bankName}}</td>
-						<td>{{payChannel.accountHolder}}</td>
-						<td>{{payChannel.bankCardAccount}}</td>
 						<td>{{payChannel.orderNo}}</td>
 						<td>{{payChannel.enabled ? '启用' : '禁用'}}</td>
+						<td v-show="tabWithPayType.bankCardFlag">{{payChannel.bankName}}</td>
+						<td v-show="tabWithPayType.bankCardFlag">{{payChannel.accountHolder}}</td>
+						<td v-show="tabWithPayType.bankCardFlag">{{payChannel.bankCardAccount}}</td>
+						<td v-show="!tabWithPayType.bankCardFlag">{{payChannel.payPlatformCode}}</td>
+						<td v-show="!tabWithPayType.bankCardFlag">{{payChannel.payPlatformName}}</td>
+						<td v-show="!tabWithPayType.bankCardFlag">{{payChannel.payPlatformChannelCode}}</td>
 						<td>
 							<button type="button" class="btn btn-outline-success btn-sm" v-on:click="showEditPayChannelModal(payChannel.id)">编辑</button>
 							<button type="button" class="btn btn-outline-danger btn-sm" v-on:click="delPayChannel(payChannel.id)">删除</button>
@@ -111,6 +116,17 @@
 										</div>
 									</div>
 									<div class="form-group row">
+										<div class="col-sm-6">
+											<label>排序号:</label> <input type="number" class="form-control" v-model="editPayChannel.orderNo">
+										</div>
+										<div class="col-sm-6">
+											<label>是否启用:</label> <select class="form-control" v-model="editPayChannel.enabled">
+												<option value="true">启用</option>
+												<option value="false">禁用</option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group row" v-show="tabWithPayType.bankCardFlag">
 										<div class="col-sm-4">
 											<label>收款银行:</label> <input type="text" class="form-control" v-model="editPayChannel.bankName">
 										</div>
@@ -121,15 +137,15 @@
 											<label>卡号:</label> <input type="text" class="form-control" v-model="editPayChannel.bankCardAccount">
 										</div>
 									</div>
-									<div class="form-group row">
-										<div class="col-sm-6">
-											<label>排序号:</label> <input type="number" class="form-control" v-model="editPayChannel.orderNo">
+									<div class="form-group row" v-show="!tabWithPayType.bankCardFlag">
+										<div class="col-sm-4">
+											<label>支付平台code:</label> <input type="text" class="form-control" v-model="editPayChannel.payPlatformCode">
 										</div>
-										<div class="col-sm-6">
-											<label>是否启用:</label> <select class="form-control" v-model="editPayChannel.enabled">
-												<option value="true">启用</option>
-												<option value="false">禁用</option>
-											</select>
+										<div class="col-sm-4">
+											<label>支付平台名称:</label> <input type="text" class="form-control" v-model="editPayChannel.payPlatformName">
+										</div>
+										<div class="col-sm-4">
+											<label>对应通道code:</label> <input type="text" class="form-control" v-model="editPayChannel.payPlatformChannelCode">
 										</div>
 									</div>
 								</form>

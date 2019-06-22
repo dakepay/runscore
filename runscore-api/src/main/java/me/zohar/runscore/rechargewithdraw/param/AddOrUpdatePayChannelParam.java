@@ -35,6 +35,21 @@ public class AddOrUpdatePayChannelParam {
 	 */
 	private String bankCardAccount;
 
+	/**
+	 * 支付平台code
+	 */
+	private String payPlatformCode;
+
+	/**
+	 * 支付平台名称
+	 */
+	private String payPlatformName;
+
+	/**
+	 * 支付平台对应通道code
+	 */
+	private String payPlatformChannelCode;
+
 	@NotBlank
 	private String payTypeId;
 
@@ -50,7 +65,7 @@ public class AddOrUpdatePayChannelParam {
 	 */
 	@NotNull
 	private Boolean enabled;
-	
+
 	public PayChannel convertToPo() {
 		PayChannel po = new PayChannel();
 		BeanUtils.copyProperties(this, po);

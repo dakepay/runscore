@@ -155,5 +155,10 @@ public class PageController {
 	public String payChannel() {
 		return "pay-channel";
 	}
+	
+	@GetMapping("/login-log")
+	public String loginLog() {
+		return "login-log";
+	}
 
 }

@@ -7,9 +7,10 @@ var masterControlRoomVM = new Vue({
 		inviteCodeEffectiveDuration : '',
 		inviteRegisterEnabled : false,
 		/**
-		 * 平台订单start
+		 * 商户订单start
 		 */
-		platformOrderEffectiveDuration : '',
+		orderReceiveEffectiveDuration : '',
+		orderPayEffectiveDuration : '',
 		receiveOrderReturnWaterRate : '',
 		receiveOrderReturnWaterRateEnabled : false,
 		unfixedGatheringCodeReceiveOrder : false,
@@ -84,7 +85,8 @@ var masterControlRoomVM = new Vue({
 			var that = this;
 			that.$http.get('/masterControl/getPlatformOrderSetting').then(function(res) {
 				if (res.body.data != null) {
-					that.platformOrderEffectiveDuration = res.body.data.orderEffectiveDuration;
+					that.orderReceiveEffectiveDuration = res.body.data.orderReceiveEffectiveDuration;
+					that.orderPayEffectiveDuration = res.body.data.orderPayEffectiveDuration;
 					that.receiveOrderReturnWaterRate = res.body.data.returnWaterRate;
 					that.receiveOrderReturnWaterRateEnabled = res.body.data.returnWaterRateEnabled;
 					that.unfixedGatheringCodeReceiveOrder = res.body.data.unfixedGatheringCodeReceiveOrder;
@@ -94,9 +96,18 @@ var masterControlRoomVM = new Vue({
 
 		updatePlatformOrderSetting : function() {
 			var that = this;
-			var platformOrderEffectiveDuration = that.platformOrderEffectiveDuration;
-			if (platformOrderEffectiveDuration == null || platformOrderEffectiveDuration == '') {
-				layer.alert('请输入平台订单有效时长', {
+			var orderReceiveEffectiveDuration = that.orderReceiveEffectiveDuration;
+			if (orderReceiveEffectiveDuration == null || orderReceiveEffectiveDuration == '') {
+				layer.alert('请输入接单有效时长', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			var orderPayEffectiveDuration = that.orderPayEffectiveDuration;
+			if (orderPayEffectiveDuration == null || orderPayEffectiveDuration == '') {
+				layer.alert('请输入支付有效时长', {
 					title : '提示',
 					icon : 7,
 					time : 3000
@@ -132,7 +143,8 @@ var masterControlRoomVM = new Vue({
 			}
 
 			that.$http.post('/masterControl/updatePlatformOrderSetting', {
-				orderEffectiveDuration : platformOrderEffectiveDuration,
+				orderReceiveEffectiveDuration : orderReceiveEffectiveDuration,
+				orderPayEffectiveDuration : orderPayEffectiveDuration,
 				returnWaterRate : receiveOrderReturnWaterRate,
 				returnWaterRateEnabled : receiveOrderReturnWaterRateEnabled,
 				unfixedGatheringCodeReceiveOrder : unfixedGatheringCodeReceiveOrder

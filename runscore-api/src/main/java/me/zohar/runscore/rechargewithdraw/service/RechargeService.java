@@ -29,6 +29,7 @@ import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.zohar.runscore.common.exception.BizError;
 import me.zohar.runscore.common.exception.BizException;
+import me.zohar.runscore.common.utils.SpringUtils;
 import me.zohar.runscore.common.utils.ThreadPoolUtils;
 import me.zohar.runscore.common.valid.ParamValid;
 import me.zohar.runscore.common.vo.PageResult;
@@ -38,13 +39,10 @@ import me.zohar.runscore.mastercontrol.repo.RechargeSettingRepo;
 import me.zohar.runscore.rechargewithdraw.domain.PayChannel;
 import me.zohar.runscore.rechargewithdraw.domain.RechargeOrder;
 import me.zohar.runscore.rechargewithdraw.param.AbcyzfCallbackParam;
-import me.zohar.runscore.rechargewithdraw.param.MuspayCallbackParam;
 import me.zohar.runscore.rechargewithdraw.param.RechargeOrderParam;
 import me.zohar.runscore.rechargewithdraw.param.RechargeOrderQueryCondParam;
 import me.zohar.runscore.rechargewithdraw.repo.PayChannelRepo;
 import me.zohar.runscore.rechargewithdraw.repo.RechargeOrderRepo;
-import me.zohar.runscore.rechargewithdraw.utils.Abcyzf;
-import me.zohar.runscore.rechargewithdraw.utils.Muspay;
 import me.zohar.runscore.rechargewithdraw.vo.RechargeOrderVO;
 import me.zohar.runscore.useraccount.domain.AccountChangeLog;
 import me.zohar.runscore.useraccount.domain.UserAccount;
@@ -85,19 +83,6 @@ public class RechargeService {
 			throw new BizException(BizError.签名不正确);
 		}
 		checkOrder(param.getOut_trade_no(), Double.parseDouble(param.getMoney()), new Date());
-	}
-
-	@ParamValid
-	public void checkOrderWithMuspay(MuspayCallbackParam param) {
-		if (!Muspay.支付成功状态.equals(param.getFxstatus())) {
-			return;
-		}
-		String sign = Muspay.generateCallbackSign(param.getFxstatus(), param.getFxddh(), param.getFxfee());
-		if (!sign.equals(param.getFxsign())) {
-			throw new BizException(BizError.签名不正确);
-		}
-		long payTimestamp = param.getFxtime() * 1000;
-		checkOrder(param.getFxddh(), Double.parseDouble(param.getFxfee()), new Date(payTimestamp));
 	}
 
 	/**
@@ -205,23 +190,6 @@ public class RechargeService {
 
 	@ParamValid
 	@Transactional
-	public RechargeOrderVO generateRechargeOrderWithAbcyzf(RechargeOrderParam param) {
-		Integer orderEffectiveDuration = Constant.充值订单默认有效时长;
-		RechargeSetting rechargeSetting = rechargeSettingRepo.findTopByOrderByLatelyUpdateTime();
-		if (rechargeSetting != null) {
-			orderEffectiveDuration = rechargeSetting.getOrderEffectiveDuration();
-		}
-
-		RechargeOrder rechargeOrder = param.convertToPo(orderEffectiveDuration);
-		String payUrl = Abcyzf.sendRequest(rechargeOrder.getOrderNo(),
-				String.valueOf(rechargeOrder.getRechargeAmount()), rechargeOrder.getPayChannelId());
-		rechargeOrder.setPayUrl(payUrl);
-		rechargeOrderRepo.save(rechargeOrder);
-		return RechargeOrderVO.convertFor(rechargeOrder);
-	}
-
-	@ParamValid
-	@Transactional
 	public RechargeOrderVO generateRechargeOrder(RechargeOrderParam param) {
 		PayChannel payChannel = payChannelRepo.getOne(param.getPayChannelId());
 		if (payChannel.getPayType().getBankCardFlag()) {
@@ -243,8 +211,9 @@ public class RechargeService {
 			// 银行卡入款的充值订单不设有效时间
 			rechargeOrder.setUsefulTime(null);
 		} else {
-			String payUrl = Abcyzf.sendRequest(rechargeOrder.getOrderNo(),
-					String.valueOf(rechargeOrder.getRechargeAmount()), payChannel.getChannelCode());
+			PayPlatformService payPlatformService = SpringUtils.getBean(payChannel.getPayPlatformCode());
+			String payUrl = payPlatformService.startPay(rechargeOrder.getOrderNo(), rechargeOrder.getRechargeAmount(),
+					payChannel.getPayPlatformChannelCode());
 			rechargeOrder.setPayUrl(payUrl);
 		}
 		rechargeOrderRepo.save(rechargeOrder);

@@ -15,9 +15,14 @@ public class PlatformOrderSettingVO {
 	private String id;
 
 	/**
-	 * 订单有效时长
+	 * 接单有效时长
 	 */
-	private Integer orderEffectiveDuration;
+	private Integer orderReceiveEffectiveDuration;
+	
+	/**
+	 * 支付有效时长
+	 */
+	private Integer orderPayEffectiveDuration;
 
 	/**
 	 * 接单返水率

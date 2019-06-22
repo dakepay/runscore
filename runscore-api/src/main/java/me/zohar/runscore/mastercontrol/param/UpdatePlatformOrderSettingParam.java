@@ -10,7 +10,11 @@ public class UpdatePlatformOrderSettingParam {
 
 	@NotNull
 	@DecimalMin(value = "0", inclusive = true)
-	private Integer orderEffectiveDuration;
+	private Integer orderReceiveEffectiveDuration;
+	
+	@NotNull
+	@DecimalMin(value = "0", inclusive = true)
+	private Integer orderPayEffectiveDuration;
 
 	@NotNull
 	@DecimalMin(value = "0", inclusive = true)

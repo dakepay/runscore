@@ -2,11 +2,9 @@ var payChannelVM = new Vue({
 	el : '#pay-channel',
 	data : {
 		payTypeDicts : [],
-		tabWithPayTypeId : {},
+		tabWithPayType : {},
 		payChannels : [],
-		games : [],
 		showPayChannelFlag : true,
-		selectedGame : {},
 
 		editPayChannel : {},
 		addOrUpdatePayChannelFlag : false,
@@ -14,7 +12,6 @@ var payChannelVM = new Vue({
 
 		payTypes : [],
 		showPayTypeFlag : false,
-		selectedGameCategory : {},
 
 		editPayType : {},
 		addOrUpdatePayTypeFlag : false,
@@ -35,7 +32,9 @@ var payChannelVM = new Vue({
 			that.$http.get('/recharge/findAllPayType', {}).then(function(res) {
 				that.payTypeDicts = res.body.data;
 				if (that.payTypeDicts.length > 0) {
-					that.tabWithPayTypeId = that.payTypeDicts[0].id;
+					that.tabWithPayType = that.payTypeDicts[0];
+				} else {
+					that.tabWithPayType = {};
 				}
 			});
 		},
@@ -51,14 +50,18 @@ var payChannelVM = new Vue({
 			this.addOrUpdatePayChannelFlag = true;
 			this.payChannelActionTitle = '新增通道';
 			this.editPayChannel = {
-				payTypeId : this.tabWithPayTypeId,
+				payTypeId : this.tabWithPayType.id,
 				channelCode : '',
 				channelName : '',
+				orderNo : '',
+				enabled : true,
 				bankName : '',
 				accountHolder : '',
 				bankCardAccount : '',
-				orderNo : '',
-				enabled : true
+
+				payPlatformCode : '',
+				payPlatformName : '',
+				payPlatformChannelCode : ''
 			};
 		},
 
@@ -94,30 +97,6 @@ var payChannelVM = new Vue({
 				});
 				return;
 			}
-			if (editPayChannel.bankName == null || editPayChannel.bankName == '') {
-				layer.alert('请输入收款银行', {
-					title : '提示',
-					icon : 7,
-					time : 3000
-				});
-				return;
-			}
-			if (editPayChannel.accountHolder == null || editPayChannel.accountHolder == '') {
-				layer.alert('请输入收款人', {
-					title : '提示',
-					icon : 7,
-					time : 3000
-				});
-				return;
-			}
-			if (editPayChannel.bankCardAccount == null || editPayChannel.bankCardAccount == '') {
-				layer.alert('请输入卡号', {
-					title : '提示',
-					icon : 7,
-					time : 3000
-				});
-				return;
-			}
 			if (editPayChannel.orderNo == null || editPayChannel.orderNo == '') {
 				layer.alert('请选择排序号', {
 					title : '提示',
@@ -126,6 +105,58 @@ var payChannelVM = new Vue({
 				});
 				return;
 			}
+			if (that.tabWithPayType.bankCardFlag) {
+				if (editPayChannel.bankName == null || editPayChannel.bankName == '') {
+					layer.alert('请输入收款银行', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+				if (editPayChannel.accountHolder == null || editPayChannel.accountHolder == '') {
+					layer.alert('请输入收款人', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+				if (editPayChannel.bankCardAccount == null || editPayChannel.bankCardAccount == '') {
+					layer.alert('请输入卡号', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+			} else {
+				if (editPayChannel.payPlatformCode == null || editPayChannel.payPlatformCode == '') {
+					layer.alert('请输入支付平台code', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+				if (editPayChannel.payPlatformName == null || editPayChannel.payPlatformName == '') {
+					layer.alert('请输入支付平台名称', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+				if (editPayChannel.payPlatformChannelCode == null || editPayChannel.payPlatformChannelCode == '') {
+					layer.alert('请输入对应通道code', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+			}
+
 			that.$http.post('/recharge/addOrUpdatePayChannel', editPayChannel).then(function(res) {
 				layer.alert('操作成功!', {
 					icon : 1,

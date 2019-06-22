@@ -52,6 +52,21 @@ public class PayChannel {
 	 */
 	private String bankCardAccount;
 
+	/**
+	 * 支付平台code
+	 */
+	private String payPlatformCode;
+
+	/**
+	 * 支付平台名称
+	 */
+	private String payPlatformName;
+
+	/**
+	 * 支付平台对应通道code
+	 */
+	private String payPlatformChannelCode;
+
 	private Date createTime;
 
 	private Double orderNo;

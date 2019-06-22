@@ -10,7 +10,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -18,15 +17,13 @@ import org.springframework.stereotype.Service;
 import me.zohar.runscore.common.exception.BizError;
 import me.zohar.runscore.common.exception.BizException;
 import me.zohar.runscore.common.utils.IdUtils;
+import me.zohar.runscore.dictconfig.ConfigHolder;
 import me.zohar.runscore.storage.domain.Storage;
 import me.zohar.runscore.storage.repo.StorageRepo;
 import me.zohar.runscore.storage.vo.StorageVO;
 
 @Service
 public class StorageService {
-	
-	@Value("${storage.storagePath:#{null}}")
-	private String storagePath;
 
 	@Autowired
 	private StorageRepo storageRepo;
@@ -37,7 +34,8 @@ public class StorageService {
 
 	public Resource loadAsResource(String id) {
 		try {
-			Path file = Paths.get(storagePath).resolve(id);
+			String localStoragePath = ConfigHolder.getConfigValue("localStoragePath");
+			Path file = Paths.get(localStoragePath).resolve(id);
 			Resource resource = new UrlResource(file.toUri());
 			if (resource.exists() || resource.isReadable()) {
 				return resource;
@@ -56,7 +54,8 @@ public class StorageService {
 		}
 		String id = IdUtils.getId();
 		try {
-			Files.copy(inputStream, Paths.get(storagePath).resolve(id), StandardCopyOption.REPLACE_EXISTING);
+			String localStoragePath = ConfigHolder.getConfigValue("localStoragePath");
+			Files.copy(inputStream, Paths.get(localStoragePath).resolve(id), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to store file " + id, e);
 		}

@@ -17,7 +17,7 @@
 }
 
 .master-control-room-row .card-body {
-	height: 170px;
+	height: 190px;
 	padding-left: 2.25rem;
 }
 
@@ -59,7 +59,12 @@
 					<div class="card-body">
 						<div class="row">
 							<div class="col-sm-12">
-								<label>商户订单有效时长</label> <span><input type="text" class="form-control-sm master-control-room-input" v-model="platformOrderEffectiveDuration">分钟</span>
+								<label>接单有效时长</label> <span><input type="text" class="form-control-sm master-control-room-input" v-model="orderReceiveEffectiveDuration">分钟</span>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<label>支付有效时长</label> <span><input type="text" class="form-control-sm master-control-room-input" v-model="orderPayEffectiveDuration">分钟</span>
 							</div>
 						</div>
 						<div class="row">

@@ -6,14 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.runscore.common.vo.Result;
 import me.zohar.runscore.config.security.UserAccountDetails;
 import me.zohar.runscore.rechargewithdraw.param.AbcyzfCallbackParam;
-import me.zohar.runscore.rechargewithdraw.param.MuspayCallbackParam;
 import me.zohar.runscore.rechargewithdraw.param.RechargeOrderParam;
 import me.zohar.runscore.rechargewithdraw.service.PayChannelService;
 import me.zohar.runscore.rechargewithdraw.service.RechargeService;
@@ -38,22 +36,6 @@ public class RechargeController {
 	@ResponseBody
 	public String abcyzfCallback(AbcyzfCallbackParam param) throws IOException {
 		rechargeService.checkOrderWithAbcyzf(param);
-		return Result.success().getMsg();
-	}
-
-	@PostMapping("/generateRechargeOrderWithAbcyzf")
-	@ResponseBody
-	public Result generateRechargeOrderWithAbcyzf(RechargeOrderParam param) {
-		UserAccountDetails user = (UserAccountDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
-		param.setUserAccountId(user.getUserAccountId());
-		return Result.success().setData(rechargeService.generateRechargeOrderWithAbcyzf(param));
-	}
-
-	@RequestMapping("/muspayCallback")
-	@ResponseBody
-	public String muspayCallback(@RequestBody MuspayCallbackParam param) throws IOException {
-		rechargeService.checkOrderWithMuspay(param);
 		return Result.success().getMsg();
 	}
 
