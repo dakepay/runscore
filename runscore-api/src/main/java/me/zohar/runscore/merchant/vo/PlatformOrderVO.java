@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.Data;
+import me.zohar.runscore.dictconfig.ConfigHolder;
 import me.zohar.runscore.dictconfig.DictHolder;
 import me.zohar.runscore.merchant.domain.MerchantOrder;
 
@@ -106,6 +107,8 @@ public class PlatformOrderVO {
 	 */
 	private Double bounty;
 
+	private String payUrl;
+
 	public static List<PlatformOrderVO> convertFor(List<MerchantOrder> platformOrders) {
 		if (CollectionUtil.isEmpty(platformOrders)) {
 			return new ArrayList<>();
@@ -131,6 +134,7 @@ public class PlatformOrderVO {
 		if (StrUtil.isNotBlank(vo.getReceivedAccountId()) && merchantOrder.getUserAccount() != null) {
 			vo.setReceiverUserName(merchantOrder.getUserAccount().getUserName());
 		}
+		vo.setPayUrl(ConfigHolder.getConfigValue("merchantOrderPayUrl") + vo.getOrderNo());
 		return vo;
 	}
 

@@ -33,7 +33,7 @@ import me.zohar.runscore.useraccount.domain.UserAccount;
 @Getter
 @Setter
 @Entity
-@Table(name = "recharge_order", schema = "lottery")
+@Table(name = "recharge_order")
 @DynamicInsert(true)
 @DynamicUpdate(true)
 public class RechargeOrder {
@@ -49,11 +49,6 @@ public class RechargeOrder {
 	 * 订单号
 	 */
 	private String orderNo;
-
-	/**
-	 * 充值方式代码
-	 */
-	private String rechargeWayCode;
 
 	/**
 	 * 充值金额
@@ -104,7 +99,17 @@ public class RechargeOrder {
 	 * 结算时间,即更新到账号保证金的时间
 	 */
 	private Date settlementTime;
-	
+
+	/**
+	 * 存款时间
+	 */
+	private Date depositTime;
+
+	/**
+	 * 存款人姓名
+	 */
+	private String depositor;
+
 	/**
 	 * 乐观锁版本号
 	 */
@@ -126,6 +131,17 @@ public class RechargeOrder {
 	private UserAccount userAccount;
 
 	/**
+	 * 支付通道id
+	 */
+	@Column(name = "pay_channel_id", length = 32)
+	private String payChannelId;
+
+	@NotFound(action = NotFoundAction.IGNORE)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "pay_channel_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	private PayChannel payChannel;
+
+	/**
 	 * 更新支付信息
 	 * 
 	 * @param actualPayAmount
@@ -144,6 +160,10 @@ public class RechargeOrder {
 	public void settlement() {
 		this.setSettlementTime(new Date());
 		this.setOrderState(Constant.充值订单状态_已结算);
+	}
+
+	public void setPayChannelInfo(PayChannel payChannel) {
+
 	}
 
 }

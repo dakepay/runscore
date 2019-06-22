@@ -2,33 +2,31 @@ var rechargeOrderVM = new Vue({
 	el : '#recharge-order',
 	data : {
 		orderNo : '',
-		rechargeWayCode : '',
-		rechargeWayDictItems : [],
+		payChannelId : '',
+		payChannels : [],
 		orderState : '',
 		rechargeOrderStateDictItems : [],
 		submitStartTime : dayjs().format('YYYY-MM-DD'),
-		submitEndTime : dayjs().format('YYYY-MM-DD')
+		submitEndTime : dayjs().format('YYYY-MM-DD'),
+		approvalFlag : false,
+		selectedOrder : {},
+		actualPayAmount : '',
+		approvalResult : '',
 	},
 	computed : {},
 	created : function() {
 	},
 	mounted : function() {
-		this.loadRechargeWayDictItem();
+		this.loadPayChannel();
 		this.loadRechargeOrderStateDictItem();
 		this.initTable();
 	},
 	methods : {
-		/**
-		 * 加载充值方式字典项
-		 */
-		loadRechargeWayDictItem : function() {
+
+		loadPayChannel : function() {
 			var that = this;
-			that.$http.get('/dictconfig/findDictItemInCache', {
-				params : {
-					dictTypeCode : 'rechargeWay'
-				}
-			}).then(function(res) {
-				this.rechargeWayDictItems = res.body.data;
+			that.$http.get('/recharge/findAllPayChannel').then(function(res) {
+				this.payChannels = res.body.data;
 			});
 		},
 
@@ -63,7 +61,7 @@ var rechargeOrderVM = new Vue({
 						pageSize : params.pageSize,
 						pageNum : params.pageNumber,
 						orderNo : that.orderNo,
-						rechargeWayCode : that.rechargeWayCode,
+						payChannelId : that.payChannelId,
 						orderState : that.orderState,
 						submitStartTime : that.submitStartTime,
 						submitEndTime : that.submitEndTime
@@ -93,9 +91,9 @@ var rechargeOrderVM = new Vue({
 					field : 'orderStateName',
 					title : '订单状态'
 				}, {
-					title : '充值方式/充值金额/实际支付',
+					title : '支付通道/充值金额/实际支付',
 					formatter : function(value, row, index, field) {
-						var text = row.rechargeWayName + '/' + row.rechargeAmount;
+						var text = row.payChannelName + '/' + row.rechargeAmount;
 						if (row.actualPayAmount != null) {
 							text += '/' + row.actualPayAmount;
 						}
@@ -114,13 +112,20 @@ var rechargeOrderVM = new Vue({
 					title : '操作',
 					formatter : function(value, row, index) {
 						if (row.orderState == '1') {
-							return [ '<button type="button" class="cancel-order-btn btn btn-outline-danger btn-sm">取消订单</button>' ].join('');
+							if (row.depositTime != null) {
+								return [ '<button type="button" class="approval-order-btn btn btn-outline-info btn-sm">审核</button>' ].join('');
+							} else {
+								return [ '<button type="button" class="cancel-order-btn btn btn-outline-danger btn-sm">取消订单</button>' ].join('');
+							}
 						}
 						if (row.orderState == '2') {
 							return [ '<button type="button" class="manual-settlement-btn btn btn-outline-success btn-sm">手动结算</button>' ].join('');
 						}
 					},
 					events : {
+						'click .approval-order-btn' : function(event, value, row, index) {
+							that.showApprovalOrderModal(row.id);
+						},
 						'click .cancel-order-btn' : function(event, value, row, index) {
 							that.cancelOrder(row.id);
 						},
@@ -135,6 +140,57 @@ var rechargeOrderVM = new Vue({
 		refreshTable : function() {
 			$('.recharge-order-table').bootstrapTable('refreshOptions', {
 				pageNumber : 1
+			});
+		},
+
+		showApprovalOrderModal : function(id) {
+			var that = this;
+			that.$http.get('/recharge/findRechargeOrderById', {
+				params : {
+					id : id
+				}
+			}).then(function(res) {
+				that.selectedOrder = res.body.data;
+				that.actualPayAmount = that.selectedOrder.rechargeAmount;
+				that.approvalResult = '2';
+				that.approvalFlag = true;
+			});
+		},
+
+		approval : function() {
+			var that = this;
+			if (that.approvalResult == null || that.approvalResult == '') {
+				layer.alert('请选择审核结果', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			if (that.approvalResult == '2') {
+				if (that.actualPayAmount == null || that.actualPayAmount == '') {
+					layer.alert('请输入实际存款金额', {
+						title : '提示',
+						icon : 7,
+						time : 3000
+					});
+					return;
+				}
+			}
+			that.$http.post('/recharge/approval', {
+				id : that.selectedOrder.id,
+				actualPayAmount : that.actualPayAmount,
+				approvalResult : that.approvalResult
+			}, {
+				emulateJSON : true
+			}).then(function(res) {
+				layer.alert('操作成功!', {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.approvalFlag = false;
+				that.refreshTable();
 			});
 		},
 
@@ -159,7 +215,7 @@ var rechargeOrderVM = new Vue({
 				});
 			});
 		},
-		
+
 		manualSettlement : function(orderNo) {
 			var that = this;
 			layer.confirm('确定要结算吗?', {

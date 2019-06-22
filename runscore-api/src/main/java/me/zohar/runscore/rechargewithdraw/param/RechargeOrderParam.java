@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
@@ -26,10 +27,21 @@ import me.zohar.runscore.rechargewithdraw.domain.RechargeOrder;
 public class RechargeOrderParam {
 
 	/**
-	 * 充值方式代码
+	 * 充值通道id
 	 */
 	@NotBlank
-	private String rechargeWayCode;
+	private String payChannelId;
+
+	/**
+	 * 存款时间
+	 */
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+	private Date depositTime;
+
+	/**
+	 * 存款人姓名
+	 */
+	private String depositor;
 
 	/**
 	 * 充值金额

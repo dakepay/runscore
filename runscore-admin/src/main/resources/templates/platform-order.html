@@ -34,6 +34,12 @@
 				<div class="col-sm-5 table-detail-item-label">备注:</div> 
 				<div class="col-sm-7 table-detail-item-value">{{platformOrderInfo.note }}</div>
 		</div>	
+		<div class="row">
+				<div class="col-sm-5 table-detail-item-label">支付地址:</div> 
+				<div class="col-sm-7 table-detail-item-value">
+				<a href="{{platformOrderInfo.payUrl }}" target="_blank">{{platformOrderInfo.payUrl }}</a>
+				</div>
+		</div>
 	</div>
 </script>
 <style type="text/css">

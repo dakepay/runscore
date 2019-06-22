@@ -27,20 +27,20 @@ public class RechargeOrderVO {
 	private String orderNo;
 
 	/**
-	 * 充值方式代码
+	 * 支付通道id
 	 */
-	private String rechargeWayCode;
-	
+	private String payChannelId;
+
 	/**
-	 * 充值方式
+	 * 支付通道名称
 	 */
-	private String rechargeWayName;
+	private String payChannelName;
 
 	/**
 	 * 充值金额
 	 */
 	private Double rechargeAmount;
-	
+
 	/**
 	 * 实际支付金额
 	 */
@@ -94,6 +94,29 @@ public class RechargeOrderVO {
 	private Date settlementTime;
 
 	/**
+	 * 存款时间
+	 */
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
+	private Date depositTime;
+
+	/**
+	 * 存款人姓名
+	 */
+	private String depositor;
+
+	private String bankName;
+
+	/**
+	 * 开户人姓名
+	 */
+	private String accountHolder;
+
+	/**
+	 * 银行卡账号
+	 */
+	private String bankCardAccount;
+
+	/**
 	 * 用户账号id
 	 */
 	private String userAccountId;
@@ -121,7 +144,12 @@ public class RechargeOrderVO {
 		RechargeOrderVO vo = new RechargeOrderVO();
 		BeanUtils.copyProperties(rechargeOrder, vo);
 		vo.setOrderStateName(DictHolder.getDictItemName("rechargeOrderState", vo.getOrderState()));
-		vo.setRechargeWayName(DictHolder.getDictItemName("rechargeWay", vo.getRechargeWayCode()));
+		if (rechargeOrder.getPayChannel() != null) {
+			vo.setPayChannelName(rechargeOrder.getPayChannel().getChannelName());
+			vo.setBankName(rechargeOrder.getPayChannel().getBankName());
+			vo.setAccountHolder(rechargeOrder.getPayChannel().getAccountHolder());
+			vo.setBankCardAccount(rechargeOrder.getPayChannel().getBankCardAccount());
+		}
 		if (rechargeOrder.getUserAccount() != null) {
 			vo.setUserName(rechargeOrder.getUserAccount().getUserName());
 		}

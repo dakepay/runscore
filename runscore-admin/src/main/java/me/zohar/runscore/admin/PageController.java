@@ -142,16 +142,6 @@ public class PageController {
 	}
 
 	/**
-	 * 邀请码
-	 * 
-	 * @return
-	 */
-	@GetMapping("/invite-code")
-	public String inviteCode() {
-		return "invite-code";
-	}
-
-	/**
 	 * 申诉记录
 	 * 
 	 * @return
@@ -159,6 +149,11 @@ public class PageController {
 	@GetMapping("/appeal-record")
 	public String appealRecord() {
 		return "appeal-record";
+	}
+	
+	@GetMapping("/pay-channel")
+	public String payChannel() {
+		return "pay-channel";
 	}
 
 }

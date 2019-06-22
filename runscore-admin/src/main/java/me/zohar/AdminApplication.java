@@ -9,7 +9,7 @@ import com.alicp.jetcache.anno.config.EnableCreateCacheAnnotation;
 import com.alicp.jetcache.anno.config.EnableMethodCache;
 
 @SpringBootApplication
-@EnableMethodCache(basePackages = "me.zohar.lottery")
+@EnableMethodCache(basePackages = "me.zohar.runscore")
 @EnableCreateCacheAnnotation
 public class AdminApplication implements ApplicationRunner {
 

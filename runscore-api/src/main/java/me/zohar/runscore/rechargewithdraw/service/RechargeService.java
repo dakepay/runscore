@@ -27,27 +27,29 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import me.zohar.lottery.common.exception.BizError;
-import me.zohar.lottery.common.exception.BizException;
-import me.zohar.lottery.common.utils.ThreadPoolUtils;
-import me.zohar.lottery.common.valid.ParamValid;
-import me.zohar.lottery.common.vo.PageResult;
-import me.zohar.lottery.constants.Constant;
-import me.zohar.lottery.mastercontrol.domain.RechargeSetting;
-import me.zohar.lottery.mastercontrol.repo.RechargeSettingRepo;
-import me.zohar.lottery.rechargewithdraw.domain.RechargeOrder;
-import me.zohar.lottery.rechargewithdraw.param.AbcyzfCallbackParam;
-import me.zohar.lottery.rechargewithdraw.param.MuspayCallbackParam;
-import me.zohar.lottery.rechargewithdraw.param.RechargeOrderParam;
-import me.zohar.lottery.rechargewithdraw.param.RechargeOrderQueryCondParam;
-import me.zohar.lottery.rechargewithdraw.repo.RechargeOrderRepo;
-import me.zohar.lottery.rechargewithdraw.utils.Abcyzf;
-import me.zohar.lottery.rechargewithdraw.utils.Muspay;
-import me.zohar.lottery.rechargewithdraw.vo.RechargeOrderVO;
-import me.zohar.lottery.useraccount.domain.AccountChangeLog;
-import me.zohar.lottery.useraccount.domain.UserAccount;
-import me.zohar.lottery.useraccount.repo.AccountChangeLogRepo;
-import me.zohar.lottery.useraccount.repo.UserAccountRepo;
+import me.zohar.runscore.common.exception.BizError;
+import me.zohar.runscore.common.exception.BizException;
+import me.zohar.runscore.common.utils.ThreadPoolUtils;
+import me.zohar.runscore.common.valid.ParamValid;
+import me.zohar.runscore.common.vo.PageResult;
+import me.zohar.runscore.constants.Constant;
+import me.zohar.runscore.mastercontrol.domain.RechargeSetting;
+import me.zohar.runscore.mastercontrol.repo.RechargeSettingRepo;
+import me.zohar.runscore.rechargewithdraw.domain.PayChannel;
+import me.zohar.runscore.rechargewithdraw.domain.RechargeOrder;
+import me.zohar.runscore.rechargewithdraw.param.AbcyzfCallbackParam;
+import me.zohar.runscore.rechargewithdraw.param.MuspayCallbackParam;
+import me.zohar.runscore.rechargewithdraw.param.RechargeOrderParam;
+import me.zohar.runscore.rechargewithdraw.param.RechargeOrderQueryCondParam;
+import me.zohar.runscore.rechargewithdraw.repo.PayChannelRepo;
+import me.zohar.runscore.rechargewithdraw.repo.RechargeOrderRepo;
+import me.zohar.runscore.rechargewithdraw.utils.Abcyzf;
+import me.zohar.runscore.rechargewithdraw.utils.Muspay;
+import me.zohar.runscore.rechargewithdraw.vo.RechargeOrderVO;
+import me.zohar.runscore.useraccount.domain.AccountChangeLog;
+import me.zohar.runscore.useraccount.domain.UserAccount;
+import me.zohar.runscore.useraccount.repo.AccountChangeLogRepo;
+import me.zohar.runscore.useraccount.repo.UserAccountRepo;
 
 @Validated
 @Slf4j
@@ -68,6 +70,9 @@ public class RechargeService {
 
 	@Autowired
 	private RechargeSettingRepo rechargeSettingRepo;
+
+	@Autowired
+	private PayChannelRepo payChannelRepo;
 
 	@ParamValid
 	public void checkOrderWithAbcyzf(AbcyzfCallbackParam param) {
@@ -209,7 +214,7 @@ public class RechargeService {
 
 		RechargeOrder rechargeOrder = param.convertToPo(orderEffectiveDuration);
 		String payUrl = Abcyzf.sendRequest(rechargeOrder.getOrderNo(),
-				String.valueOf(rechargeOrder.getRechargeAmount()), rechargeOrder.getRechargeWayCode());
+				String.valueOf(rechargeOrder.getRechargeAmount()), rechargeOrder.getPayChannelId());
 		rechargeOrder.setPayUrl(payUrl);
 		rechargeOrderRepo.save(rechargeOrder);
 		return RechargeOrderVO.convertFor(rechargeOrder);
@@ -218,16 +223,30 @@ public class RechargeService {
 	@ParamValid
 	@Transactional
 	public RechargeOrderVO generateRechargeOrder(RechargeOrderParam param) {
+		PayChannel payChannel = payChannelRepo.getOne(param.getPayChannelId());
+		if (payChannel.getPayType().getBankCardFlag()) {
+			if (param.getDepositTime() == null) {
+				throw new BizException(BizError.存款时间不能为空);
+			}
+			if (StrUtil.isBlank(param.getDepositor())) {
+				throw new BizException(BizError.存款人姓名不能为空);
+			}
+		}
+
 		Integer orderEffectiveDuration = Constant.充值订单默认有效时长;
 		RechargeSetting rechargeSetting = rechargeSettingRepo.findTopByOrderByLatelyUpdateTime();
 		if (rechargeSetting != null) {
 			orderEffectiveDuration = rechargeSetting.getOrderEffectiveDuration();
 		}
-
 		RechargeOrder rechargeOrder = param.convertToPo(orderEffectiveDuration);
-		String payUrl = Muspay.sendRequest(rechargeOrder.getOrderNo(), rechargeOrder.getRechargeAmount(),
-				rechargeOrder.getRechargeWayCode());
-		rechargeOrder.setPayUrl(payUrl);
+		if (payChannel.getPayType().getBankCardFlag()) {
+			// 银行卡入款的充值订单不设有效时间
+			rechargeOrder.setUsefulTime(null);
+		} else {
+			String payUrl = Abcyzf.sendRequest(rechargeOrder.getOrderNo(),
+					String.valueOf(rechargeOrder.getRechargeAmount()), payChannel.getChannelCode());
+			rechargeOrder.setPayUrl(payUrl);
+		}
 		rechargeOrderRepo.save(rechargeOrder);
 		return RechargeOrderVO.convertFor(rechargeOrder);
 	}
@@ -283,6 +302,22 @@ public class RechargeService {
 		rechargeOrder.setOrderState(Constant.充值订单状态_人工取消);
 		rechargeOrder.setDealTime(new Date());
 		rechargeOrderRepo.save(rechargeOrder);
+	}
+
+	@Transactional(readOnly = true)
+	public RechargeOrderVO findRechargeOrderById(@NotBlank String id) {
+		RechargeOrder rechargeOrder = rechargeOrderRepo.getOne(id);
+		return RechargeOrderVO.convertFor(rechargeOrder);
+	}
+
+	@Transactional
+	public void approval(@NotBlank String id, Double actualPayAmount, @NotBlank String approvalResult) {
+		if (Constant.充值订单状态_人工取消.equals(approvalResult)) {
+			cancelOrder(id);
+		} else if (Constant.充值订单状态_已支付.equals(approvalResult)) {
+			RechargeOrder rechargeOrder = rechargeOrderRepo.getOne(id);
+			checkOrder(rechargeOrder.getOrderNo(), actualPayAmount, rechargeOrder.getDepositTime());
+		}
 	}
 
 }

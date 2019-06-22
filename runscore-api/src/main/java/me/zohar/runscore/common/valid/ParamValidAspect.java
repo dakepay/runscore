@@ -30,7 +30,7 @@ public class ParamValidAspect {
 	@Autowired
 	private Validator validator;
 
-	@Pointcut("@annotation(me.zohar.lottery.common.valid.ParamValid)")
+	@Pointcut("@annotation(me.zohar.runscore.common.valid.ParamValid)")
 	public void paramValidAspect() {
 	}
 

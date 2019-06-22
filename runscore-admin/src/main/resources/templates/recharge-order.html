@@ -18,10 +18,12 @@
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <script id="recharge-order-detail" type="text/html">
 	<div class="table-detail">
+		{{if rechargeOrderInfo.depositTime == null}}
 		<div class="row">
 				<div class="col-sm-5 table-detail-item-label">订单有效时间:</div>
 				<div class="col-sm-7 table-detail-item-value">{{rechargeOrderInfo.usefulTime }}</div>
 		</div>	
+		{{/if}}
 		<div class="row">
 				<div class="col-sm-5 table-detail-item-label">系统处理时间:</div>
 				<div class="col-sm-7 table-detail-item-value">{{rechargeOrderInfo.dealTime }}</div>
@@ -30,10 +32,34 @@
 				<div class="col-sm-5 table-detail-item-label">备注:</div> 
 				<div class="col-sm-7 table-detail-item-value">{{rechargeOrderInfo.note }}</div>
 		</div>	
+		{{if rechargeOrderInfo.depositTime == null}}
 		<div class="row">
 				<div class="col-sm-5 table-detail-item-label">支付地址:</div>
 				<div class="col-sm-7 table-detail-item-value">{{rechargeOrderInfo.payUrl }}</div>
 		</div>
+		{{/if}}
+		{{if rechargeOrderInfo.depositTime != null}}
+		<div class="row">
+				<div class="col-sm-5 table-detail-item-label">收款银行:</div>
+				<div class="col-sm-7 table-detail-item-value">{{rechargeOrderInfo.bankName }}</div>
+		</div>
+		<div class="row">
+				<div class="col-sm-5 table-detail-item-label">收款人:</div>
+				<div class="col-sm-7 table-detail-item-value">{{rechargeOrderInfo.accountHolder }}</div>
+		</div>
+		<div class="row">
+				<div class="col-sm-5 table-detail-item-label">卡号:</div>
+				<div class="col-sm-7 table-detail-item-value">{{rechargeOrderInfo.bankCardAccount }}</div>
+		</div>
+		<div class="row">
+				<div class="col-sm-5 table-detail-item-label">存款人:</div>
+				<div class="col-sm-7 table-detail-item-value">{{rechargeOrderInfo.depositor }}</div>
+		</div>
+		<div class="row">
+				<div class="col-sm-5 table-detail-item-label">存款时间:</div>
+				<div class="col-sm-7 table-detail-item-value">{{rechargeOrderInfo.depositTime }}</div>
+		</div>
+		{{/if}}
 	</div>
 </script>
 <style type="text/css">
@@ -48,9 +74,9 @@
 				<label>订单号:</label><input type="text" class="form-control-sm" v-model="orderNo">
 			</div>
 			<div class="form-group common-query-cond">
-				<label>充值方式:</label> <select class="form-control-sm" v-model="rechargeWayCode">
+				<label>支付通道:</label> <select class="form-control-sm" v-model="payChannelId">
 					<option value="">请选择</option>
-					<option v-for="dictItem in rechargeWayDictItems" :value="dictItem.dictItemCode">{{dictItem.dictItemName}}</option>
+					<option v-for="payChannel in payChannels" :value="payChannel.id">{{payChannel.channelName}}</option>
 				</select>
 			</div>
 			<div class="form-group common-query-cond">
@@ -65,6 +91,76 @@
 			<button type="button" class="btn btn-danger btn-sm" v-on:click="refreshTable">搜索</button>
 		</form>
 		<table class="common-table recharge-order-table"></table>
+
+		<div v-show="approvalFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">审核充值订单</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="approvalFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body" style="height: 460px; overflow: auto;">
+								<table class="table common-table">
+									<thead>
+										<tr>
+											<th>收款银行</th>
+											<th>收款人</th>
+											<th>卡号</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>{{selectedOrder.bankName}}</td>
+											<td>{{selectedOrder.accountHolder}}</td>
+											<td>{{selectedOrder.bankCardAccount}}</td>
+										</tr>
+									</tbody>
+								</table>
+								<table class="table common-table">
+									<thead>
+										<tr>
+											<th>存款人</th>
+											<th>存款时间</th>
+											<th>存款金额</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>{{selectedOrder.depositor}}</td>
+											<td>{{selectedOrder.depositTime}}</td>
+											<td>{{selectedOrder.rechargeAmount}}</td>
+										</tr>
+									</tbody>
+								</table>
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>实际存款金额:</label> <input type="number" class="form-control" placeholder="请输入实际存款的金额" v-model="actualPayAmount">
+										</div>
+									</div>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<label>审核结果:</label> <select class="form-control" v-model="approvalResult">
+												<option value="2">确认已支付</option>
+												<option value="5">人工取消</option>
+											</select>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="approval">确定</button>
+								<button type="button" class="btn btn-sm" v-on:click="approvalFlag = false">取消</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	<script src="/js/recharge-order.js"></script>
 </body>

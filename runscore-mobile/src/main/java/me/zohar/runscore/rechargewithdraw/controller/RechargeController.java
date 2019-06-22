@@ -10,13 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.alibaba.fastjson.JSON;
-
 import me.zohar.runscore.common.vo.Result;
 import me.zohar.runscore.config.security.UserAccountDetails;
 import me.zohar.runscore.rechargewithdraw.param.AbcyzfCallbackParam;
 import me.zohar.runscore.rechargewithdraw.param.MuspayCallbackParam;
 import me.zohar.runscore.rechargewithdraw.param.RechargeOrderParam;
+import me.zohar.runscore.rechargewithdraw.service.PayChannelService;
 import me.zohar.runscore.rechargewithdraw.service.RechargeService;
 
 /**
@@ -31,14 +30,17 @@ public class RechargeController {
 
 	@Autowired
 	private RechargeService rechargeService;
-	
+
+	@Autowired
+	private PayChannelService payChannelService;
+
 	@RequestMapping("/callback/abcyzfCallback")
 	@ResponseBody
 	public String abcyzfCallback(AbcyzfCallbackParam param) throws IOException {
 		rechargeService.checkOrderWithAbcyzf(param);
 		return Result.success().getMsg();
 	}
-	
+
 	@PostMapping("/generateRechargeOrderWithAbcyzf")
 	@ResponseBody
 	public Result generateRechargeOrderWithAbcyzf(RechargeOrderParam param) {
@@ -54,7 +56,7 @@ public class RechargeController {
 		rechargeService.checkOrderWithMuspay(param);
 		return Result.success().getMsg();
 	}
-	
+
 	@PostMapping("/generateRechargeOrder")
 	@ResponseBody
 	public Result generateRechargeOrder(RechargeOrderParam param) {
@@ -62,6 +64,18 @@ public class RechargeController {
 				.getPrincipal();
 		param.setUserAccountId(user.getUserAccountId());
 		return Result.success().setData(rechargeService.generateRechargeOrder(param));
+	}
+
+	@RequestMapping("/findEnabledPayType")
+	@ResponseBody
+	public Result findEnabledPayType() throws IOException {
+		return Result.success().setData(payChannelService.findAllPayType());
+	}
+
+	@RequestMapping("/findEnabledPayChannel")
+	@ResponseBody
+	public Result findEnabledPayChannel() throws IOException {
+		return Result.success().setData(payChannelService.findEnabledPayChannel());
 	}
 
 }

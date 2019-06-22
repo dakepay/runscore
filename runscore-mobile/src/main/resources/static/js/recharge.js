@@ -1,17 +1,13 @@
 var rechargeVM = new Vue({
 	el : '#recharge',
 	data : {
-		selectedRechargeWay : '',
-		rechargeWays : [ {
-			rechargeWayCode : 'alipay',
-			rechargeWayName : '支付宝',
-			icon : '/images/recharge/alipay.png'
-		}, {
-			rechargeWayCode : 'wechat',
-			rechargeWayName : '微信',
-			icon : '/images/recharge/wechat.png'
-		} ],
-		userName : '',
+		payTypes : [],
+		selectedPayType : {},
+		payChannels : [],
+		selectedPayChannel : '',
+		depositDate : dayjs().format('YYYY-MM-DD'),
+		depositTime : dayjs().format('HH:mm'),
+		depositor : '',
 		rechargeAmount : ''
 	},
 	computed : {},
@@ -20,31 +16,59 @@ var rechargeVM = new Vue({
 	mounted : function() {
 		headerVM.title = '充值';
 		headerVM.showBackFlag = true;
-		this.getUserAccountInfo();
+		var clipboard = new ClipboardJS('.copy-btn');
+		clipboard.on('success', function(e) {
+			layer.alert('复制成功!', {
+				icon : 1,
+				time : 3000,
+				shade : false
+			});
+		});
+		this.loadPayType();
+		this.loadPayChannel();
 
 	},
 	methods : {
-		chooseRechargeWay : function(rechargeWay) {
-			this.selectedRechargeWay = rechargeWay;
-		},
 
-		/**
-		 * 获取用户账号信息
-		 */
-		getUserAccountInfo : function() {
+		loadPayType : function() {
 			var that = this;
-			that.$http.get('/userAccount/getUserAccountInfo').then(function(res) {
-				if (res.body.data != null) {
-					that.userName = res.body.data.userName;
-				}
+			that.$http.get('/recharge/findEnabledPayType').then(function(res) {
+				that.payTypes = res.body.data;
+				that.selectedPayType = that.payTypes[0];
 			});
 		},
 
-		confirmRecharge : function() {
+		loadPayChannel : function() {
 			var that = this;
-			if (that.selectedRechargeWay == null || that.selectedRechargeWay == '') {
-				layer.alert('请选择支付方式');
+			that.$http.get('/recharge/findEnabledPayChannel').then(function(res) {
+				that.payChannels = res.body.data;
+			});
+		},
+
+		switchPayType : function(payType) {
+			this.selectedPayType = payType;
+			this.selectedPayChannel = '';
+		},
+
+		confirmSubmit : function() {
+			var that = this;
+			if (that.selectedPayChannel == null || that.selectedPayChannel == '') {
+				layer.alert(that.selectedPayType.bankCardFlag ? '请选择银行' : '请选择支付通道');
 				return;
+			}
+			if (that.selectedPayType.bankCardFlag) {
+				if (that.depositDate == null || that.depositDate == '') {
+					layer.alert('请输入存款日期');
+					return;
+				}
+				if (that.depositTime == null || that.depositTime == '') {
+					layer.alert('请输入存款时间');
+					return;
+				}
+				if (that.depositor == null || that.depositor == '') {
+					layer.alert('请输入存款人姓名');
+					return;
+				}
 			}
 			if (that.rechargeAmount == null || that.rechargeAmount == '') {
 				layer.alert('请输入充值金额');
@@ -58,24 +82,39 @@ var rechargeVM = new Vue({
 				content : '正在创建充值订单...',
 				time : 2000
 			});
-			that.$http.post('/recharge/generateRechargeOrderWithAbcyzf', {
-				rechargeWayCode : that.selectedRechargeWay.rechargeWayCode,
+			that.$http.post('/recharge/generateRechargeOrder', {
+				payChannelId : that.selectedPayChannel.id,
+				depositTime : that.depositDate + ' ' + that.depositTime,
+				depositor : that.depositor,
 				rechargeAmount : that.rechargeAmount
 			}, {
 				emulateJSON : true
 			}).then(function(res) {
-				console.log(res);
-				layer.open({
-					title : '提示',
-					icon : '1',
-					closeBtn : 0,
-					btn : [],
-					content : '充值订单创建成功,正在跳转到支付页面!',
-					time : 2000,
-					end : function() {
-						window.location.href = res.body.data.payUrl;
-					}
-				});
+				if (that.selectedPayType.bankCardFlag) {
+					layer.open({
+						title : '提示',
+						icon : '1',
+						closeBtn : 0,
+						btn : [],
+						content : '提交成功,预计30分钟到帐!',
+						time : 1500,
+						end : function() {
+							window.location.href = '/my-home-page';
+						}
+					});
+				} else {
+					layer.open({
+						title : '提示',
+						icon : '1',
+						closeBtn : 0,
+						btn : [],
+						content : '充值订单创建成功,正在跳转到支付页面!',
+						time : 2000,
+						end : function() {
+							window.location.href = res.body.data.payUrl;
+						}
+					});
+				}
 			});
 		}
 	}

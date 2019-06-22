@@ -1,4 +1,6 @@
-package me.zohar.runscore.dictconfig.domain;
+package me.zohar.runscore.rechargewithdraw.domain;
+
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,20 +14,13 @@ import org.hibernate.annotations.DynamicUpdate;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * 配置项
- * 
- * @author zohar
- * @date 2019年1月21日
- *
- */
 @Getter
 @Setter
 @Entity
-@Table(name = "config_item")
+@Table(name = "pay_type")
 @DynamicInsert(true)
 @DynamicUpdate(true)
-public class ConfigItem {
+public class PayType {
 
 	/**
 	 * 主键id
@@ -34,21 +29,24 @@ public class ConfigItem {
 	@Column(name = "id", length = 32)
 	private String id;
 
-	/**
-	 * 配置项code
-	 */
-	private String configCode;
+	private String type;
+
+	private String name;
+
+	private Boolean bankCardFlag;
 
 	/**
-	 * 配置项名称
+	 * 排序号
 	 */
-	private String configName;
+	private Double orderNo;
 	
 	/**
-	 * 配置项值
+	 * 是否启用
 	 */
-	private String configValue;
+	private Boolean enabled;
 	
+	private Date createTime;
+
 	/**
 	 * 乐观锁版本号
 	 */
