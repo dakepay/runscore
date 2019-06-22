@@ -22,7 +22,6 @@
 
 	<modules>
 		<module>runscore-api</module>
-		<module>runscore-task</module>
 		<module>runscore-mobile</module>
 		<module>runscore-admin</module>
 		<module>runscore-merchant</module>
