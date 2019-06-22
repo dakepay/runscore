@@ -30,6 +30,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/pay").permitAll()
 		.antMatchers("/api/**").permitAll()
 		.antMatchers("/storage/fetch/**").permitAll()
+		.antMatchers("/merchantOrder/startOrder").permitAll()
 		.anyRequest().authenticated()
 		.and().formLogin().loginPage("/login").loginProcessingUrl("/login")
 		.successHandler(successHandler).failureHandler(failHandler).permitAll()
