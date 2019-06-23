@@ -105,7 +105,7 @@ public class PageController {
 	public String auditOrder() {
 		return "audit-order";
 	}
-	
+
 	/**
 	 * 接单记录
 	 * 
@@ -115,7 +115,7 @@ public class PageController {
 	public String receiveOrderRecord() {
 		return "receive-order-record";
 	}
-	
+
 	/**
 	 * 申诉记录
 	 * 
@@ -125,5 +125,15 @@ public class PageController {
 	public String appealRecord() {
 		return "appeal-record";
 	}
-	
+
+	/**
+	 * 在线客服
+	 * 
+	 * @return
+	 */
+	@GetMapping("/online-customer")
+	public String onlineCustomer() {
+		return "online-customer";
+	}
+
 }

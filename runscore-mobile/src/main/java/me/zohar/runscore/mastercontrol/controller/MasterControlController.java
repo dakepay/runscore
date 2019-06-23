@@ -28,5 +28,11 @@ public class MasterControlController {
 	public Result getInviteRegisterSetting() {
 		return Result.success().setData(service.getInviteRegisterSetting());
 	}
+	
+	@GetMapping("/getCustomerQrcodeSetting")
+	@ResponseBody
+	public Result getCustomerQrcodeSetting() {
+		return Result.success().setData(service.getCustomerQrcodeSetting());
+	}
 
 }

@@ -41,6 +41,7 @@
 }
 
 .analysis-card-row1 {
+	
 }
 
 .analysis-card-row2 {
@@ -77,45 +78,45 @@
 		<div class="row analysis-row1">
 			<div class="col-sm-3 analysis-card">
 				<div class="analysis-card-row1">累计交易金额</div>
-				<div class="analysis-card-row2">{{totalStatistical.tradeAmount}}元</div>
+				<div class="analysis-card-row2">{{totalStatistical != null && totalStatistical.tradeAmount != null ? totalStatistical.tradeAmount : 0}}元</div>
 				<div class="analysis-card-row3">
 					<div>
 						<div class="index-label">累计已支付订单量</div>
-						<div class="index-value">{{totalStatistical.paidOrderNum}}笔</div>
+						<div class="index-value">{{totalStatistical != null && totalStatistical.paidOrderNum != null ? totalStatistical.paidOrderNum : 0}}笔</div>
 					</div>
 					<div>
 						<div class="index-label">累计订单量</div>
-						<div class="index-value">{{totalStatistical.orderNum}}笔</div>
+						<div class="index-value">{{totalStatistical != null && totalStatistical.orderNum != null ? totalStatistical.orderNum : 0}}笔</div>
 					</div>
 				</div>
 			</div>
 
 			<div class="col-sm-3 analysis-card">
 				<div class="analysis-card-row1">本月交易金额</div>
-				<div class="analysis-card-row2">{{monthStatistical.tradeAmount}}元</div>
+				<div class="analysis-card-row2">{{monthStatistical != null && monthStatistical.tradeAmount != null ? monthStatistical.tradeAmount : 0}}元</div>
 				<div class="analysis-card-row3">
 					<div>
 						<div class="index-label">本月已支付订单量</div>
-						<div class="index-value">{{monthStatistical.paidOrderNum}}笔</div>
+						<div class="index-value">{{monthStatistical != null && monthStatistical.paidOrderNum != null ? monthStatistical.paidOrderNum : 0}}笔</div>
 					</div>
 					<div>
 						<div class="index-label">本月订单量</div>
-						<div class="index-value">{{monthStatistical.orderNum}}笔</div>
+						<div class="index-value">{{monthStatistical != null && monthStatistical.orderNum != null ? monthStatistical.orderNum : 0}}笔</div>
 					</div>
 				</div>
 			</div>
 
 			<div class="col-sm-3 analysis-card">
 				<div class="analysis-card-row1">今日交易金额</div>
-				<div class="analysis-card-row2">{{todayStatistical.tradeAmount}}元</div>
+				<div class="analysis-card-row2">{{todayStatistical != null && todayStatistical.tradeAmount != null ? todayStatistical.tradeAmount : 0}}元</div>
 				<div class="analysis-card-row3">
 					<div>
 						<div class="index-label">今日已支付订单量</div>
-						<div class="index-value">{{todayStatistical.paidOrderNum}}笔</div>
+						<div class="index-value">{{todayStatistical != null && todayStatistical.paidOrderNum != null ? todayStatistical.paidOrderNum : 0}}笔</div>
 					</div>
 					<div>
 						<div class="index-label">今日订单量</div>
-						<div class="index-value">{{todayStatistical.orderNum}}笔</div>
+						<div class="index-value">{{todayStatistical != null && todayStatistical.orderNum != null ? todayStatistical.orderNum : 0}}笔</div>
 					</div>
 				</div>
 			</div>

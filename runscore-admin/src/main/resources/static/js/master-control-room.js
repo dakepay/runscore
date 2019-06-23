@@ -20,6 +20,14 @@ var masterControlRoomVM = new Vue({
 		rechargeOrderEffectiveDuration : '',
 		rechargeReturnWaterRate : '',
 		rechargeReturnWaterRateEnabled : false,
+
+		/**
+		 * 客服二维码start
+		 */
+		qrcodeStorageIds : [],
+		tmpQrcodeStorageIds : '',
+		uploadQrcodeFlag : false,
+
 		/**
 		 * 刷新缓存start
 		 */
@@ -30,9 +38,16 @@ var masterControlRoomVM = new Vue({
 	created : function() {
 	},
 	mounted : function() {
-		this.loadInviteRegisterSetting();
-		this.loadPlatformOrderSetting();
-		this.loadRechargeSetting();
+		var that = this;
+		that.loadInviteRegisterSetting();
+		that.loadPlatformOrderSetting();
+		that.loadRechargeSetting();
+		that.loadCustomerQrcodeSetting();
+
+		$('.qrcode-pic').on('filebatchuploadsuccess', function(event, data) {
+			that.tmpQrcodeStorageIds = data.response.data.join(',');
+			that.updateCustomerQrcodeSetting();
+		});
 	},
 	methods : {
 
@@ -214,6 +229,73 @@ var masterControlRoomVM = new Vue({
 					shade : false
 				});
 				that.loadRechargeSetting();
+			});
+		},
+
+		loadCustomerQrcodeSetting : function() {
+			var that = this;
+			that.$http.get('/masterControl/getCustomerQrcodeSetting').then(function(res) {
+				if (res.body.data != null) {
+					that.qrcodeStorageIds = res.body.data.qrcodeStorageIds.split(',');
+				} else {
+					that.qrcodeStorageIds = [];
+				}
+			});
+		},
+
+		showUploadQrcodeModal : function() {
+			this.uploadQrcodeFlag = true;
+			$('.qrcode-pic').fileinput('destroy').fileinput({
+				uploadAsync : false,
+				browseOnZoneClick : true,
+				showBrowse : false,
+				showCaption : false,
+				showClose : true,
+				showRemove : false,
+				showUpload : false,
+				dropZoneTitle : '点击选择二维码',
+				dropZoneClickTitle : '',
+				layoutTemplates : {
+					footer : ''
+				},
+				maxFileCount : 2,
+				uploadUrl : '/storage/uploadPic',
+				enctype : 'multipart/form-data',
+				allowedFileExtensions : [ 'jpg', 'png', 'bmp', 'jpeg' ],
+				initialPreview : [],
+				initialPreviewAsData : true,
+				initialPreviewConfig : []
+			});
+		},
+
+		uploadQrcode : function() {
+			var filesCount = $('.qrcode-pic').fileinput('getFilesCount');
+			if (filesCount == 0) {
+				layer.alert('请选择要上传的二维码', {
+					title : '提示',
+					icon : 7,
+					time : 3000
+				});
+				return;
+			}
+			$('.qrcode-pic').fileinput('upload');
+		},
+
+		updateCustomerQrcodeSetting : function() {
+			var that = this;
+			var tmpQrcodeStorageIds = that.tmpQrcodeStorageIds;
+			that.$http.post('/masterControl/updateCustomerQrcodeSetting', {
+				qrcodeStorageIds : that.tmpQrcodeStorageIds
+			}, {
+				emulateJSON : true
+			}).then(function(res) {
+				layer.alert('操作成功!', {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.uploadQrcodeFlag = false;
+				that.loadCustomerQrcodeSetting();
 			});
 		},
 

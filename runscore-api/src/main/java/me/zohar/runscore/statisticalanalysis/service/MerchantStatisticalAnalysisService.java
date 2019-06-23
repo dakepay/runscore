@@ -40,19 +40,19 @@ public class MerchantStatisticalAnalysisService {
 
 	@Transactional(readOnly = true)
 	public IndexStatisticalVO findTotalStatistical(@NotBlank String merchantId) {
-		MerchantTotalStatistical statistical = totalStatisticalRepo.getOne(merchantId);
+		MerchantTotalStatistical statistical = totalStatisticalRepo.findById(merchantId).orElse(null);
 		return IndexStatisticalVO.convertForTotal(statistical);
 	}
 
 	@Transactional(readOnly = true)
 	public IndexStatisticalVO findMonthStatistical(@NotBlank String merchantId) {
-		MerchantMonthStatistical statistical = monthStatisticalRepo.getOne(merchantId);
+		MerchantMonthStatistical statistical = monthStatisticalRepo.findById(merchantId).orElse(null);
 		return IndexStatisticalVO.convertForMonth(statistical);
 	}
 
 	@Transactional(readOnly = true)
 	public IndexStatisticalVO findTodayStatistical(@NotBlank String merchantId) {
-		MerchantTodayStatistical statistical = todayStatisticalRepo.getOne(merchantId);
+		MerchantTodayStatistical statistical = todayStatisticalRepo.findById(merchantId).orElse(null);
 		return IndexStatisticalVO.convertForToday(statistical);
 	}
 

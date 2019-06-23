@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -18,13 +19,16 @@ import org.springframework.validation.annotation.Validated;
 
 import lombok.extern.slf4j.Slf4j;
 import me.zohar.runscore.common.valid.ParamValid;
+import me.zohar.runscore.mastercontrol.domain.CustomerQrcodeSetting;
 import me.zohar.runscore.mastercontrol.domain.InviteRegisterSetting;
 import me.zohar.runscore.mastercontrol.domain.PlatformOrderSetting;
 import me.zohar.runscore.mastercontrol.domain.RechargeSetting;
 import me.zohar.runscore.mastercontrol.param.UpdatePlatformOrderSettingParam;
+import me.zohar.runscore.mastercontrol.repo.CustomerQrcodeSettingRepo;
 import me.zohar.runscore.mastercontrol.repo.InviteRegisterSettingRepo;
 import me.zohar.runscore.mastercontrol.repo.PlatformOrderSettingRepo;
 import me.zohar.runscore.mastercontrol.repo.RechargeSettingRepo;
+import me.zohar.runscore.mastercontrol.vo.CustomerQrcodeSettingVO;
 import me.zohar.runscore.mastercontrol.vo.InviteRegisterSettingVO;
 import me.zohar.runscore.mastercontrol.vo.PlatformOrderSettingVO;
 import me.zohar.runscore.mastercontrol.vo.RechargeSettingVO;
@@ -45,6 +49,9 @@ public class MasterControlService {
 
 	@Autowired
 	private RechargeSettingRepo rechargeSettingRepo;
+
+	@Autowired
+	private CustomerQrcodeSettingRepo customerQrcodeSettingRepo;
 
 	@Transactional(readOnly = true)
 	public InviteRegisterSettingVO getInviteRegisterSetting() {
@@ -71,8 +78,7 @@ public class MasterControlService {
 
 	@ParamValid
 	@Transactional
-	public void updatePlatformOrderSetting(
-			UpdatePlatformOrderSettingParam param) {
+	public void updatePlatformOrderSetting(UpdatePlatformOrderSettingParam param) {
 		PlatformOrderSetting setting = platformOrderSettingRepo.findTopByOrderByLatelyUpdateTime();
 		if (setting == null) {
 			setting = PlatformOrderSetting.build();
@@ -99,6 +105,22 @@ public class MasterControlService {
 		}
 		setting.update(orderEffectiveDuration, returnWaterRate, returnWaterRateEnabled);
 		rechargeSettingRepo.save(setting);
+	}
+	
+	@Transactional(readOnly = true)
+	public CustomerQrcodeSettingVO getCustomerQrcodeSetting() {
+		CustomerQrcodeSetting setting = customerQrcodeSettingRepo.findTopByOrderByLatelyUpdateTime();
+		return CustomerQrcodeSettingVO.convertFor(setting);
+	}
+
+	@Transactional
+	public void updateCustomerQrcodeSetting(@NotBlank String qrcodeStorageIds) {
+		CustomerQrcodeSetting setting = customerQrcodeSettingRepo.findTopByOrderByLatelyUpdateTime();
+		if (setting == null) {
+			setting = CustomerQrcodeSetting.build();
+		}
+		setting.update(qrcodeStorageIds);
+		customerQrcodeSettingRepo.save(setting);
 	}
 
 	/**

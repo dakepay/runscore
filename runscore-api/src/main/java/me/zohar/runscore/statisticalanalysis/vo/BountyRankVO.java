@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 import me.zohar.runscore.statisticalanalysis.domain.TodayAccountReceiveOrderSituation;
 import me.zohar.runscore.statisticalanalysis.domain.TotalAccountReceiveOrderSituation;
@@ -68,8 +69,11 @@ public class BountyRankVO implements Serializable {
 	}
 
 	public void userNameDesensitization() {
-		this.setUserName(this.userName.substring(0, 1) + "***"
-				+ this.userName.substring(this.userName.length() - 3, this.userName.length()));
+		if (StrUtil.isNotBlank(this.userName)) {
+			this.setUserName(this.userName.substring(0, 1) + "***"
+					+ this.userName.substring(this.userName.length() - 3, this.userName.length()));
+		}
+
 	}
 
 }

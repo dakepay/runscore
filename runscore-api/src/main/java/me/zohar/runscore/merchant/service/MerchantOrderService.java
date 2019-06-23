@@ -50,10 +50,10 @@ import me.zohar.runscore.merchant.param.StartOrderParam;
 import me.zohar.runscore.merchant.repo.MerchantOrderRepo;
 import me.zohar.runscore.merchant.repo.MerchantRepo;
 import me.zohar.runscore.merchant.vo.MerchantOrderDetailsVO;
+import me.zohar.runscore.merchant.vo.MerchantOrderVO;
 import me.zohar.runscore.merchant.vo.MyWaitConfirmOrderVO;
 import me.zohar.runscore.merchant.vo.MyWaitReceivingOrderVO;
 import me.zohar.runscore.merchant.vo.OrderGatheringCodeVO;
-import me.zohar.runscore.merchant.vo.MerchantOrderVO;
 import me.zohar.runscore.useraccount.domain.AccountChangeLog;
 import me.zohar.runscore.useraccount.domain.UserAccount;
 import me.zohar.runscore.useraccount.repo.AccountChangeLogRepo;
@@ -440,6 +440,17 @@ public class MerchantOrderService {
 		platformOrder.setOrderState(Constant.商户订单状态_商户取消订单);
 		platformOrder.setDealTime(new Date());
 		merchantOrderRepo.save(platformOrder);
+	}
+
+	@Transactional
+	public void orderTimeoutDeal() {
+		Date now = new Date();
+		List<MerchantOrder> orders = merchantOrderRepo.findByOrderStateAndUsefulTimeLessThan(Constant.商户订单状态_等待接单, now);
+		for (MerchantOrder order : orders) {
+			order.setDealTime(now);
+			order.setOrderState(Constant.商户订单状态_超时取消);
+			merchantOrderRepo.save(order);
+		}
 	}
 
 }

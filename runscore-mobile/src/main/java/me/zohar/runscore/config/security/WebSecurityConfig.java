@@ -39,6 +39,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/recharge/callback/**").permitAll()
 		.antMatchers("/statisticalAnalysis/findTodayTop10BountyRank").permitAll()
 		.antMatchers("/statisticalAnalysis/findTotalTop10BountyRank").permitAll()
+		.antMatchers("/online-customer").permitAll()
+		.antMatchers("/masterControl/getCustomerQrcodeSetting").permitAll()
 		.anyRequest().authenticated()
 		.and().formLogin().loginPage("/login").loginProcessingUrl("/login")
 		.successHandler(successHandler).failureHandler(failHandler).permitAll()

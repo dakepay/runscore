@@ -68,6 +68,19 @@ public class MasterControlController {
 		return Result.success();
 	}
 
+	@GetMapping("/getCustomerQrcodeSetting")
+	@ResponseBody
+	public Result getCustomerQrcodeSetting() {
+		return Result.success().setData(service.getCustomerQrcodeSetting());
+	}
+
+	@PostMapping("/updateCustomerQrcodeSetting")
+	@ResponseBody
+	public Result updateCustomerQrcodeSetting(String qrcodeStorageIds) {
+		service.updateCustomerQrcodeSetting(qrcodeStorageIds);
+		return Result.success();
+	}
+
 	@PostMapping("/refreshCache")
 	@ResponseBody
 	public Result refreshCache(@RequestBody List<String> cacheItems) {

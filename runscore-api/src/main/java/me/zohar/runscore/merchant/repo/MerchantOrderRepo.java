@@ -1,5 +1,6 @@
 package me.zohar.runscore.merchant.repo;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,5 +25,7 @@ public interface MerchantOrderRepo
 	MerchantOrder findByIdAndMerchantId(String id, String merchantId);
 	
 	MerchantOrder findByOrderNo(String orderNo);
+	
+	List<MerchantOrder> findByOrderStateAndUsefulTimeLessThan(String orderState, Date usefulTime);
 
 }

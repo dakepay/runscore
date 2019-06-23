@@ -8,6 +8,8 @@
 <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<link href="https://cdn.bootcss.com/bootstrap-fileinput/5.0.1/css/fileinput.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/bootstrap-fileinput/5.0.1/js/fileinput.min.js"></script>
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
 .master-control-room-row {
@@ -24,6 +26,35 @@
 .master-control-room-input {
 	text-align: right;
 	width: 40%;
+}
+
+.customer-qrcode-div {
+	height: 120px;
+}
+
+.customer-qrcode {
+	background-color: #fff;
+	width: 50%;
+	height: 120px;
+	padding-right: 5px;
+	float: left !important;
+	cursor: pointer;
+}
+
+.no-supplied-customer-qrcode {
+	text-align: center;
+	height: 120px;
+	line-height: 120px;
+	font-weight: bold;
+	color: red;
+}
+
+.kv-file-content {
+	width: 100% !important;
+}
+
+.view-gathering-code-dialog .modal-content {
+	width: 80%;
 }
 </style>
 </head>
@@ -104,13 +135,24 @@
 							</div>
 						</div>
 						<button type="button" class="btn btn-success btn-sm" v-on:click="updateRechargeSetting">更新</button>
-
 					</div>
 				</div>
 			</div>
 		</div>
 
 		<div class="row master-control-room-row">
+			<div class="col-sm-4">
+				<div class="card">
+					<div class="card-header">客服二维码</div>
+					<div class="card-body">
+						<div class="customer-qrcode-div">
+							<div class="no-supplied-customer-qrcode" v-show="qrcodeStorageIds.length == 0">未上传二维码</div>
+							<img class="customer-qrcode" v-for="qrcodeStorageId in qrcodeStorageIds" :src="'/storage/fetch/' + qrcodeStorageId">
+						</div>
+						<button type="button" class="btn btn-success btn-sm" style="margin-top: 10px;" v-on:click="showUploadQrcodeModal">{{qrcodeStorageIds.length == 0 ? '立即上传' : '重新上传'}}</button>
+					</div>
+				</div>
+			</div>
 			<div class="col-sm-4">
 				<div class="card">
 					<div class="card-header">刷新缓存</div>
@@ -133,6 +175,36 @@
 							</div>
 						</div>
 						<button type="button" class="btn btn-success btn-sm" v-on:click="refreshCache">刷新缓存</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-show="uploadQrcodeFlag">
+			<div class="modal-mask">
+				<div class="modal-wrapper">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">上传客服二维码</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="uploadQrcodeFlag = false">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body" style="height: 320px; overflow: auto;">
+								<form>
+									<div class="form-group row">
+										<div class="col-sm-12">
+											<input type="file" class="form-control qrcode-pic" multiple>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success btn-sm" v-on:click="uploadQrcode">保存</button>
+								<button type="button" class="btn btn-sm" v-on:click="uploadQrcodeFlag = false">取消</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
