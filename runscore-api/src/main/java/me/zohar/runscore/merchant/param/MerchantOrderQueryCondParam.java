@@ -10,10 +10,10 @@ import me.zohar.runscore.common.param.PageParam;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class PlatformOrderQueryCondParam extends PageParam {
+public class MerchantOrderQueryCondParam extends PageParam {
 
 	private String orderNo;
-	
+
 	private String platformName;
 
 	private String gatheringChannelCode;
@@ -22,7 +22,7 @@ public class PlatformOrderQueryCondParam extends PageParam {
 	 * 订单状态
 	 */
 	private String orderState;
-	
+
 	private String receiverUserName;
 
 	/**
@@ -36,5 +36,17 @@ public class PlatformOrderQueryCondParam extends PageParam {
 	 */
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date submitEndTime;
+
+	/**
+	 * 接单开始时间
+	 */
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date receiveOrderStartTime;
+
+	/**
+	 * 接单结束时间
+	 */
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date receiveOrderEndTime;
 
 }

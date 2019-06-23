@@ -281,6 +281,17 @@ var appealRecordVM = new Vue({
 				that.showAppealRecordPage();
 				that.refreshTable();
 			});
+		},
+
+		viewImage : function(imagePath) {
+			var image = new Image();
+			image.src = imagePath;
+			var viewer = new Viewer(image, {
+				hidden : function() {
+					viewer.destroy();
+				},
+			});
+			viewer.show();
 		}
 	}
 });

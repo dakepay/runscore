@@ -9,12 +9,14 @@
 <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
 <script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+<script src="https://cdn.bootcss.com/dayjs/1.7.8/dayjs.min.js"></script>
 <link href="/css/common/common.css" rel="stylesheet" type="text/css">
 <style type="text/css">
 .analysis-row1 {
 	margin-left: 20px;
 	margin-right: 20px;
 	padding-top: 20px;
+	justify-content: center;
 }
 
 .analysis-card {
@@ -39,7 +41,6 @@
 }
 
 .analysis-card-row1 {
-	
 }
 
 .analysis-card-row2 {
@@ -74,12 +75,8 @@
 	<div th:replace="common/header::html"></div>
 	<div id="statistical-analysis" v-cloak>
 		<div class="row analysis-row1">
-			<div class="col-sm-2 analysis-card">
-				<div class="cash-deposit-index-label">累计保证金</div>
-				<div class="cash-deposit-index-value">{{totalCashDeposit}} 元</div>
-			</div>
 			<div class="col-sm-3 analysis-card">
-				<div class="analysis-card-row1">累计收款金额</div>
+				<div class="analysis-card-row1">累计交易金额</div>
 				<div class="analysis-card-row2">{{totalStatistical.tradeAmount}}元</div>
 				<div class="analysis-card-row3">
 					<div>
@@ -94,7 +91,7 @@
 			</div>
 
 			<div class="col-sm-3 analysis-card">
-				<div class="analysis-card-row1">本月收款金额</div>
+				<div class="analysis-card-row1">本月交易金额</div>
 				<div class="analysis-card-row2">{{monthStatistical.tradeAmount}}元</div>
 				<div class="analysis-card-row3">
 					<div>
@@ -109,7 +106,7 @@
 			</div>
 
 			<div class="col-sm-3 analysis-card">
-				<div class="analysis-card-row1">今日收款金额</div>
+				<div class="analysis-card-row1">今日交易金额</div>
 				<div class="analysis-card-row2">{{todayStatistical.tradeAmount}}元</div>
 				<div class="analysis-card-row3">
 					<div>

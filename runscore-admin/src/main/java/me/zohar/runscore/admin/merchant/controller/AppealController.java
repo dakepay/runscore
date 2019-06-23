@@ -37,6 +37,13 @@ public class AppealController {
 		appealService.alterToActualPayAmount(appealId);
 		return Result.success();
 	}
+	
+	@GetMapping("/confirmToPaid")
+	@ResponseBody
+	public Result confirmToPaid(String appealId) {
+		appealService.confirmToPaid(appealId);
+		return Result.success();
+	}
 
 	@GetMapping("/findAppealByPage")
 	@ResponseBody

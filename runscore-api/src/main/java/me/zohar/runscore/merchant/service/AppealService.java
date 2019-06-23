@@ -157,10 +157,6 @@ public class AppealService {
 		if (appeal == null) {
 			throw new BizException(BizError.参数异常);
 		}
-		if (!(Constant.申诉类型_未支付申请取消订单.equals(appeal.getAppealType())
-				|| Constant.申诉类型_实际支付金额小于收款金额.equals(appeal.getAppealType()))) {
-			throw new BizException(BizError.该申诉类型的处理方式不能是改为实际支付金额);
-		}
 		if (!Constant.申诉状态_待处理.equals(appeal.getState())) {
 			throw new BizException(BizError.当前申诉已完结无法更改处理方式);
 		}
@@ -195,6 +191,21 @@ public class AppealService {
 		accountChangeLogRepo.save(AccountChangeLog.buildWithAlterToActualPayAmountRefund(userAccount,
 				merchantOrder.getOrderNo(), refundAmount));
 		merchantOrderService.customerServiceConfirmToPaid(merchantOrder.getId(), "客服改单为实际支付金额并确认已支付");
+	}
+
+	@Transactional
+	public void confirmToPaid(@NotBlank String appealId) {
+		Appeal appeal = appealRepo.findById(appealId).orElse(null);
+		if (appeal == null) {
+			throw new BizException(BizError.参数异常);
+		}
+		if (!Constant.申诉状态_待处理.equals(appeal.getState())) {
+			throw new BizException(BizError.当前申诉已完结无法更改处理方式);
+		}
+
+		appeal.confirmToPaid();
+		appealRepo.save(appeal);
+		merchantOrderService.customerServiceConfirmToPaid(appeal.getMerchantOrderId(), "客服确认已支付");
 	}
 
 	@Transactional(readOnly = true)

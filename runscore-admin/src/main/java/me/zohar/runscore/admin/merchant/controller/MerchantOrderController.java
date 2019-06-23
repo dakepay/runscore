@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.runscore.common.vo.Result;
-import me.zohar.runscore.merchant.param.PlatformOrderQueryCondParam;
+import me.zohar.runscore.merchant.param.MerchantOrderQueryCondParam;
 import me.zohar.runscore.merchant.service.MerchantOrderService;
 
 @Controller
@@ -19,7 +19,7 @@ public class MerchantOrderController {
 
 	@GetMapping("/findPlatformOrderByPage")
 	@ResponseBody
-	public Result findPlatformOrderByPage(PlatformOrderQueryCondParam param) {
+	public Result findPlatformOrderByPage(MerchantOrderQueryCondParam param) {
 		return Result.success().setData(platformOrderService.findMerchantOrderByPage(param));
 	}
 

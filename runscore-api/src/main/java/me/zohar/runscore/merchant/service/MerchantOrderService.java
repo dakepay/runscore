@@ -45,17 +45,15 @@ import me.zohar.runscore.mastercontrol.domain.PlatformOrderSetting;
 import me.zohar.runscore.mastercontrol.repo.PlatformOrderSettingRepo;
 import me.zohar.runscore.merchant.domain.Merchant;
 import me.zohar.runscore.merchant.domain.MerchantOrder;
-import me.zohar.runscore.merchant.param.MyReceiveOrderRecordQueryCondParam;
-import me.zohar.runscore.merchant.param.PlatformOrderQueryCondParam;
+import me.zohar.runscore.merchant.param.MerchantOrderQueryCondParam;
 import me.zohar.runscore.merchant.param.StartOrderParam;
 import me.zohar.runscore.merchant.repo.MerchantOrderRepo;
 import me.zohar.runscore.merchant.repo.MerchantRepo;
 import me.zohar.runscore.merchant.vo.MerchantOrderDetailsVO;
-import me.zohar.runscore.merchant.vo.MyReceiveOrderRecordVO;
 import me.zohar.runscore.merchant.vo.MyWaitConfirmOrderVO;
 import me.zohar.runscore.merchant.vo.MyWaitReceivingOrderVO;
 import me.zohar.runscore.merchant.vo.OrderGatheringCodeVO;
-import me.zohar.runscore.merchant.vo.PlatformOrderVO;
+import me.zohar.runscore.merchant.vo.MerchantOrderVO;
 import me.zohar.runscore.useraccount.domain.AccountChangeLog;
 import me.zohar.runscore.useraccount.domain.UserAccount;
 import me.zohar.runscore.useraccount.repo.AccountChangeLogRepo;
@@ -91,7 +89,8 @@ public class MerchantOrderService {
 	}
 
 	/**
-	 * 商户取消订单退款
+	 * 客服取消订单退款
+	 * 
 	 * @param orderId
 	 */
 	@Transactional
@@ -290,7 +289,7 @@ public class MerchantOrderService {
 
 	@ParamValid
 	@Transactional
-	public PlatformOrderVO startOrder(StartOrderParam param) {
+	public MerchantOrderVO startOrder(StartOrderParam param) {
 		Merchant merchant = merchantRepo.findBySecretKey(param.getSecretKey());
 		if (merchant == null) {
 			throw new BizException(BizError.商户未接入);
@@ -304,7 +303,7 @@ public class MerchantOrderService {
 
 		MerchantOrder platformOrder = param.convertToPo(merchant.getId(), orderEffectiveDuration);
 		merchantOrderRepo.save(platformOrder);
-		return PlatformOrderVO.convertFor(platformOrder);
+		return MerchantOrderVO.convertFor(platformOrder);
 	}
 
 	/**
@@ -354,41 +353,8 @@ public class MerchantOrderService {
 		accountChangeLogRepo.save(AccountChangeLog.buildWithReceiveOrderDeduction(userAccount, platformOrder));
 	}
 
-	@ParamValid
 	@Transactional(readOnly = true)
-	public PageResult<MyReceiveOrderRecordVO> findMyReceiveOrderRecordByPage(MyReceiveOrderRecordQueryCondParam param) {
-		Specification<MerchantOrder> spec = new Specification<MerchantOrder>() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			public Predicate toPredicate(Root<MerchantOrder> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				List<Predicate> predicates = new ArrayList<Predicate>();
-				if (param.getReceiveOrderTime() != null) {
-					predicates.add(builder.greaterThanOrEqualTo(root.get("receivedTime").as(Date.class),
-							DateUtil.beginOfDay(param.getReceiveOrderTime())));
-				}
-				if (param.getReceiveOrderTime() != null) {
-					predicates.add(builder.lessThanOrEqualTo(root.get("receivedTime").as(Date.class),
-							DateUtil.endOfDay(param.getReceiveOrderTime())));
-				}
-				if (StrUtil.isNotEmpty(param.getGatheringChannelCode())) {
-					predicates.add(builder.equal(root.get("gatheringChannelCode"), param.getGatheringChannelCode()));
-				}
-				return predicates.size() > 0 ? builder.and(predicates.toArray(new Predicate[predicates.size()])) : null;
-			}
-		};
-		Page<MerchantOrder> result = merchantOrderRepo.findAll(spec,
-				PageRequest.of(param.getPageNum() - 1, param.getPageSize(), Sort.by(Sort.Order.desc("receivedTime"))));
-		PageResult<MyReceiveOrderRecordVO> pageResult = new PageResult<>(
-				MyReceiveOrderRecordVO.convertFor(result.getContent()), param.getPageNum(), param.getPageSize(),
-				result.getTotalElements());
-		return pageResult;
-	}
-
-	@Transactional(readOnly = true)
-	public PageResult<PlatformOrderVO> findMerchantOrderByPage(PlatformOrderQueryCondParam param) {
+	public PageResult<MerchantOrderVO> findMerchantOrderByPage(MerchantOrderQueryCondParam param) {
 		Specification<MerchantOrder> spec = new Specification<MerchantOrder>() {
 			/**
 			 * 
@@ -423,12 +389,20 @@ public class MerchantOrderService {
 					predicates.add(builder.lessThanOrEqualTo(root.get("submitTime").as(Date.class),
 							DateUtil.endOfDay(param.getSubmitEndTime())));
 				}
+				if (param.getReceiveOrderStartTime() != null) {
+					predicates.add(builder.greaterThanOrEqualTo(root.get("receivedTime").as(Date.class),
+							DateUtil.beginOfDay(param.getReceiveOrderStartTime())));
+				}
+				if (param.getReceiveOrderEndTime() != null) {
+					predicates.add(builder.lessThanOrEqualTo(root.get("receivedTime").as(Date.class),
+							DateUtil.endOfDay(param.getReceiveOrderEndTime())));
+				}
 				return predicates.size() > 0 ? builder.and(predicates.toArray(new Predicate[predicates.size()])) : null;
 			}
 		};
 		Page<MerchantOrder> result = merchantOrderRepo.findAll(spec,
 				PageRequest.of(param.getPageNum() - 1, param.getPageSize(), Sort.by(Sort.Order.desc("submitTime"))));
-		PageResult<PlatformOrderVO> pageResult = new PageResult<>(PlatformOrderVO.convertFor(result.getContent()),
+		PageResult<MerchantOrderVO> pageResult = new PageResult<>(MerchantOrderVO.convertFor(result.getContent()),
 				param.getPageNum(), param.getPageSize(), result.getTotalElements());
 		return pageResult;
 	}

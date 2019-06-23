@@ -78,28 +78,24 @@ public class StatisticalAnalysisService {
 		return BountyRankVO.convertForToday(todayReceiveOrderSituations);
 	}
 
-	@Cached(name = "totalCashDeposit", expire = 300)
 	@Transactional(readOnly = true)
 	public Double findTotalCashDeposit() {
 		TotalCashDeposit totalCashDeposit = totalCashDepositRepo.findTopBy();
 		return NumberUtil.round(totalCashDeposit.getTotalCashDeposit(), 4).doubleValue();
 	}
 
-	@Cached(name = "totalStatistical", expire = 300)
 	@Transactional(readOnly = true)
 	public IndexStatisticalVO findTotalStatistical() {
 		TotalStatistical statistical = totalStatisticalRepo.findTopBy();
 		return IndexStatisticalVO.convertForTotal(statistical);
 	}
 
-	@Cached(name = "monthStatistical", expire = 300)
 	@Transactional(readOnly = true)
 	public IndexStatisticalVO findMonthStatistical() {
 		MonthStatistical statistical = monthStatisticalRepo.findTopBy();
 		return IndexStatisticalVO.convertForMonth(statistical);
 	}
 
-	@Cached(name = "todayStatistical", expire = 300)
 	@Transactional(readOnly = true)
 	public IndexStatisticalVO findTodayStatistical() {
 		TodayStatistical statistical = todayStatisticalRepo.findTopBy();

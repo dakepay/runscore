@@ -3,56 +3,22 @@ var todayBountyRankChart = null;
 var statisticalAnalysisVM = new Vue({
 	el : '#statistical-analysis',
 	data : {
-		totalCashDeposit : '',
 		totalStatistical : {},
 		monthStatistical : {},
-		todayStatistical : {}
+		todayStatistical : {},
+		everydayStatisticals : []
 	},
 	computed : {},
 	created : function() {
 	},
 	mounted : function() {
 		var that = this;
-		that.loadTotalCashDeposit();
-		setInterval(function() {
-			that.loadTotalCashDeposit();
-		}, 1000 * 60 * 5);
-
-		that.loadMonthStatistical();
-		setInterval(function() {
-			that.loadMonthStatistical();
-		}, 1000 * 60 * 5);
-
-		that.loadTodayStatistical();
-		setInterval(function() {
-			that.loadTodayStatistical();
-		}, 1000 * 60 * 5);
-
 		that.loadTotalStatistical();
-		setInterval(function() {
-			that.loadTotalStatistical();
-		}, 1000 * 60 * 5);
-
-		that.initTotalBountyRankChart();
-		that.loadTotalTop10BountyRankData();
-		setInterval(function() {
-			that.loadTotalTop10BountyRankData();
-		}, 1000 * 60 * 5);
-
-		that.initTodayBountyRankChart();
-		that.loadTodayTop10BountyRankData();
-		setInterval(function() {
-			that.loadTodayTop10BountyRankData();
-		}, 1000 * 60 * 5);
+		that.loadMonthStatistical();
+		that.loadTodayStatistical();
+		that.loadEveryStatisticalDataAndInitChart();
 	},
 	methods : {
-
-		loadTotalCashDeposit : function() {
-			var that = this;
-			that.$http.get('/statisticalAnalysis/findTotalCashDeposit').then(function(res) {
-				that.totalCashDeposit = res.body.data;
-			});
-		},
 
 		loadTotalStatistical : function() {
 			var that = this;
@@ -75,11 +41,25 @@ var statisticalAnalysisVM = new Vue({
 			});
 		},
 
-		initTotalBountyRankChart : function() {
+		loadEveryStatisticalDataAndInitChart : function() {
+			var that = this;
+			that.$http.get('/statisticalAnalysis/findEverydayStatistical', {
+				params : {
+					startTime : dayjs().startOf('month').format('YYYY-MM-DD'),
+					endTime : dayjs().endOf('month').format('YYYY-MM-DD')
+				}
+			}).then(function(res) {
+				that.everydayStatisticals = res.body.data;
+				that.initTradeAmountTrendChart();
+				that.initOrderQuantityContrastChart();
+			});
+		},
+
+		initTradeAmountTrendChart : function() {
 			var that = this;
 			option = {
 				title : {
-					text : '累计奖励金排行榜前十'
+					text : '交易金额走势(本月)'
 				},
 				color : [ '#3398DB' ],
 				tooltip : {
@@ -88,40 +68,49 @@ var statisticalAnalysisVM = new Vue({
 						type : 'shadow'
 					}
 				},
-				grid : {
-					left : '3%',
-					right : '4%',
-					bottom : '3%',
-					containLabel : true
-				},
 				xAxis : {
 					type : 'category',
-					data : [],
-					axisTick : {
-						alignWithLabel : true
-					}
+					data : []
 				},
 				yAxis : {
 					type : 'value'
 				},
 				series : [ {
-					name : '奖励金',
-					type : 'bar',
-					barWidth : '60%',
+					name : '交易金额',
+					type : 'line',
 					data : []
 				} ]
 			};
 			totalBountyRankChart = echarts.init(document.getElementById('total-bounty-rank-chart'));
 			totalBountyRankChart.setOption(option);
+
+			var xAxisDatas = [];
+			var seriesDatas = [];
+			for (var i = 0; i < that.everydayStatisticals.length; i++) {
+				xAxisDatas.push(dayjs(that.everydayStatisticals[i].date).format('MM月DD日'));
+				seriesDatas.push(that.everydayStatisticals[i].tradeAmount);
+			}
+			totalBountyRankChart.setOption({
+				xAxis : {
+					data : xAxisDatas
+				},
+				series : [ {
+					data : seriesDatas
+				} ]
+			});
 		},
 
-		initTodayBountyRankChart : function() {
+		initOrderQuantityContrastChart : function() {
 			var that = this;
 			option = {
 				title : {
-					text : '今日奖励金排行榜前十'
+					text : '已支付订单量/订单量走势(本月)'
 				},
-				color : [ '#3398DB' ],
+				legend : {
+					x : 'right',
+					data : [ '已支付', '订单量' ]
+				},
+				color : [ '#07a2a4', '#3398DB' ],
 				tooltip : {
 					trigger : 'axis',
 					axisPointer : {
@@ -144,57 +133,36 @@ var statisticalAnalysisVM = new Vue({
 				yAxis : {
 					type : 'value'
 				},
-				series : [ {
-					name : '奖励金',
-					type : 'bar',
-					barWidth : '60%',
-					data : []
-				} ]
+				series : []
 			};
 			todayBountyRankChart = echarts.init(document.getElementById('today-bounty-rank-chart'));
 			todayBountyRankChart.setOption(option);
-		},
 
-		loadTotalTop10BountyRankData : function() {
-			var that = this;
-			that.$http.get('/statisticalAnalysis/findTotalTop10BountyRank').then(function(res) {
-				var xAxisDatas = [];
-				var seriesDatas = [];
-				var top10BountyRanks = res.body.data;
-				for (var i = 0; i < top10BountyRanks.length; i++) {
-					xAxisDatas.push(top10BountyRanks[i].userName);
-					seriesDatas.push(top10BountyRanks[i].bounty);
-				}
-				totalBountyRankChart.setOption({
-					xAxis : {
-						data : xAxisDatas
-					},
-					series : [ {
-						data : seriesDatas
-					} ]
-				});
-			});
-		},
-
-		loadTodayTop10BountyRankData : function() {
-			var that = this;
-			that.$http.get('/statisticalAnalysis/findTodayTop10BountyRank').then(function(res) {
-				var xAxisDatas = [];
-				var seriesDatas = [];
-				var top10BountyRanks = res.body.data;
-				for (var i = 0; i < top10BountyRanks.length; i++) {
-					xAxisDatas.push(top10BountyRanks[i].userName);
-					seriesDatas.push(top10BountyRanks[i].bounty);
-				}
-				todayBountyRankChart.setOption({
-					xAxis : {
-						data : xAxisDatas
-					},
-					series : [ {
-						data : seriesDatas
-					} ]
-				});
+			var xAxisDatas = [];
+			var paidOrderQuantity = [];
+			var orderQuantity = [];
+			for (var i = 0; i < that.everydayStatisticals.length; i++) {
+				xAxisDatas.push(dayjs(that.everydayStatisticals[i].date).format('MM月DD日'));
+				paidOrderQuantity.push(that.everydayStatisticals[i].paidOrderNum);
+				orderQuantity.push(that.everydayStatisticals[i].orderNum);
+			}
+			todayBountyRankChart.setOption({
+				xAxis : {
+					data : xAxisDatas
+				},
+				series : [ {
+					name : '已支付',
+					type : 'line',
+					stack : '汇总',
+					data : paidOrderQuantity
+				}, {
+					name : '订单量',
+					type : 'line',
+					stack : '汇总',
+					data : orderQuantity
+				} ]
 			});
 		}
+
 	}
 });

@@ -102,5 +102,10 @@ public class Appeal {
 		this.setState(Constant.申诉状态_已完结);
 		this.setProcessWay(Constant.申诉处理方式_取消订单);
 	}
+	
+	public void confirmToPaid() {
+		this.setState(Constant.申诉状态_已完结);
+		this.setProcessWay(Constant.申诉处理方式_确认已支付);
+	}
 
 }

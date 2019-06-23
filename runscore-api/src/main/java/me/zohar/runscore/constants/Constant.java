@@ -41,6 +41,8 @@ public class Constant {
 	public static final String 申诉处理方式_不做处理 = "4";
 
 	public static final String 申诉处理方式_商户撤销申诉 = "5";
+	
+	public static final String 申诉处理方式_确认已支付 = "6";
 
 	public static final String 接单状态_正在接单 = "1";
 

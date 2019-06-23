@@ -64,7 +64,7 @@ var appealRecordVM = new Vue({
 				this.appealStateDictItems = res.body.data;
 			});
 		},
-		
+
 		loadAppealProcessWayDictItem : function() {
 			var that = this;
 			that.$http.get('/dictconfig/findDictItemInCache', {
@@ -148,7 +148,7 @@ var appealRecordVM = new Vue({
 					formatter : function(value, row, index) {
 						if (row.state == '1') {
 							return [ '<button type="button" class="deal-btn btn btn-outline-danger btn-sm">马上处理</button>' ].join('');
-						}else if (row.state == '2') {
+						} else if (row.state == '2') {
 							return [ '<button type="button" class="deal-btn btn btn-outline-info btn-sm">查看详情</button>' ].join('');
 						}
 					},
@@ -225,6 +225,34 @@ var appealRecordVM = new Vue({
 				that.showAppealRecordPage();
 				that.refreshTable();
 			});
+		},
+
+		confirmToPaid : function(appealId) {
+			var that = this;
+			that.$http.get('/appeal/confirmToPaid', {
+				params : {
+					appealId : appealId
+				}
+			}).then(function(res) {
+				layer.alert('操作成功!', {
+					icon : 1,
+					time : 3000,
+					shade : false
+				});
+				that.showAppealRecordPage();
+				that.refreshTable();
+			});
+		},
+
+		viewImage : function(imagePath) {
+			var image = new Image();
+			image.src = imagePath;
+			var viewer = new Viewer(image, {
+				hidden : function() {
+					viewer.destroy();
+				},
+			});
+			viewer.show();
 		}
 
 	}

@@ -12,7 +12,7 @@ public class ThreadPoolUtils {
 	/**
 	 * 登录日志线程池
 	 */
-	private static ScheduledThreadPoolExecutor loginLogPool = new ScheduledThreadPoolExecutor(2);
+	private static ScheduledThreadPoolExecutor loginLogPool = new ScheduledThreadPoolExecutor(3);
 
 	public static ScheduledThreadPoolExecutor getRechargeSettlementPool() {
 		return rechargeSettlementPool;

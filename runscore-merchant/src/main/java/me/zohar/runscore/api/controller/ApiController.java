@@ -11,7 +11,7 @@ import me.zohar.runscore.common.vo.Result;
 import me.zohar.runscore.merchant.param.StartOrderParam;
 import me.zohar.runscore.merchant.service.MerchantOrderService;
 import me.zohar.runscore.merchant.vo.OrderGatheringCodeVO;
-import me.zohar.runscore.merchant.vo.PlatformOrderVO;
+import me.zohar.runscore.merchant.vo.MerchantOrderVO;
 
 @Controller
 @RequestMapping("/api")
@@ -23,7 +23,7 @@ public class ApiController {
 	@PostMapping("/startOrder")
 	@ResponseBody
 	public Result startOrder(StartOrderParam param) {
-		PlatformOrderVO vo = platformOrderService.startOrder(param);
+		MerchantOrderVO vo = platformOrderService.startOrder(param);
 		return Result.success().setData(vo);
 	}
 

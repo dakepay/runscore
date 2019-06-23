@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import me.zohar.runscore.common.vo.Result;
 import me.zohar.runscore.config.security.MerchantAccountDetails;
-import me.zohar.runscore.merchant.param.PlatformOrderQueryCondParam;
+import me.zohar.runscore.merchant.param.MerchantOrderQueryCondParam;
 import me.zohar.runscore.merchant.param.StartOrderParam;
 import me.zohar.runscore.merchant.service.MerchantOrderService;
 
@@ -23,7 +23,7 @@ public class MerchantOrderController {
 
 	@GetMapping("/findMerchantOrderByPage")
 	@ResponseBody
-	public Result findMerchantOrderByPage(PlatformOrderQueryCondParam param) {
+	public Result findMerchantOrderByPage(MerchantOrderQueryCondParam param) {
 		MerchantAccountDetails user = (MerchantAccountDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		param.setPlatformName(user.getMerchantName());

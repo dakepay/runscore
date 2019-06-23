@@ -16,7 +16,7 @@ import me.zohar.runscore.dictconfig.DictHolder;
 import me.zohar.runscore.merchant.domain.MerchantOrder;
 
 @Data
-public class PlatformOrderVO {
+public class MerchantOrderVO {
 
 	/**
 	 * 主键id
@@ -109,22 +109,22 @@ public class PlatformOrderVO {
 
 	private String payUrl;
 
-	public static List<PlatformOrderVO> convertFor(List<MerchantOrder> platformOrders) {
+	public static List<MerchantOrderVO> convertFor(List<MerchantOrder> platformOrders) {
 		if (CollectionUtil.isEmpty(platformOrders)) {
 			return new ArrayList<>();
 		}
-		List<PlatformOrderVO> vos = new ArrayList<>();
+		List<MerchantOrderVO> vos = new ArrayList<>();
 		for (MerchantOrder platformOrder : platformOrders) {
 			vos.add(convertFor(platformOrder));
 		}
 		return vos;
 	}
 
-	public static PlatformOrderVO convertFor(MerchantOrder merchantOrder) {
+	public static MerchantOrderVO convertFor(MerchantOrder merchantOrder) {
 		if (merchantOrder == null) {
 			return null;
 		}
-		PlatformOrderVO vo = new PlatformOrderVO();
+		MerchantOrderVO vo = new MerchantOrderVO();
 		BeanUtils.copyProperties(merchantOrder, vo);
 		vo.setGatheringChannelName(DictHolder.getDictItemName("gatheringChannel", vo.getGatheringChannelCode()));
 		vo.setOrderStateName(DictHolder.getDictItemName("platformOrderState", vo.getOrderState()));
